@@ -1,53 +1,90 @@
-import { Box, Container, Heading, Text, VStack, HStack, Button, SimpleGrid, Card, List, Flex } from "@chakra-ui/react"
 import { Link as RouterLink, createFileRoute } from "@tanstack/react-router"
-import { FiCheck } from "react-icons/fi"
+import { Check, LogOut } from "lucide-react"
+import { Button } from "@/components/ui/shadcn-button"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/shadcn-card"
+import useAuth, { isLoggedIn } from "@/hooks/useAuth"
 
 export const Route = createFileRoute("/pricing")({
   component: PricingPage,
 })
 
 function PricingPage() {
+  const { logout } = useAuth()
+  const isAuthenticated = isLoggedIn()
+
   return (
-    <Box minH="100vh">
+    <div className="min-h-screen">
       {/* Navigation Header */}
-      <Box as="header" bg="white" borderBottom="1px" borderColor="gray.200" py={4}>
-        <Container maxW="7xl">
-          <Flex justify="space-between" align="center">
-            <RouterLink to="/">
-              <Heading size="lg" color="blue.600">SEO Optimizer</Heading>
-            </RouterLink>
-            <HStack gap={4}>
-              <RouterLink to="/features">Features</RouterLink>
-              <RouterLink to="/pricing">Pricing</RouterLink>
-              <RouterLink to="/about">About</RouterLink>
-              <RouterLink to="/contact">Contact</RouterLink>
-              <RouterLink to="/login">
-                <Button variant="ghost" size="sm">Sign In</Button>
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container flex h-16 items-center">
+          <RouterLink to="/" className="mr-6 flex items-center space-x-2">
+            <span className="text-xl font-bold text-primary">SEO Optimizer</span>
+          </RouterLink>
+          <nav className="flex flex-1 items-center justify-between">
+            <div className="flex items-center space-x-6 text-sm">
+              <RouterLink to="/features" className="transition-colors hover:text-foreground/80 text-foreground/60">
+                Features
               </RouterLink>
-              <RouterLink to="/signup">
-                <Button colorPalette="blue" size="sm">Get Started</Button>
+              <RouterLink to="/pricing" className="transition-colors hover:text-foreground/80 text-foreground">
+                Pricing
               </RouterLink>
-            </HStack>
-          </Flex>
-        </Container>
-      </Box>
+              <RouterLink to="/about" className="transition-colors hover:text-foreground/80 text-foreground/60">
+                About
+              </RouterLink>
+              <RouterLink to="/contact" className="transition-colors hover:text-foreground/80 text-foreground/60">
+                Contact
+              </RouterLink>
+            </div>
+            <div className="flex items-center space-x-4">
+              {isAuthenticated ? (
+                <>
+                  <Button variant="ghost" asChild>
+                    <RouterLink to="/dashboard">Dashboard</RouterLink>
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      logout();
+                    }}
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Logout
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button variant="ghost" asChild>
+                    <RouterLink to="/login">Sign In</RouterLink>
+                  </Button>
+                  <Button asChild>
+                    <RouterLink to="/signup">Get Started</RouterLink>
+                  </Button>
+                </>
+              )}
+            </div>
+          </nav>
+        </div>
+      </header>
 
       {/* Pricing Header */}
-      <Box bg="gray.50" py={20}>
-        <Container maxW="7xl">
-          <VStack gap={6} textAlign="center">
-            <Heading size="4xl">Simple, Transparent Pricing</Heading>
-            <Text fontSize="xl" color="gray.600" maxW="2xl">
+      <section className="bg-gray-50 py-20">
+        <div className="container">
+          <div className="mx-auto max-w-3xl text-center">
+            <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
+              Simple, Transparent Pricing
+            </h1>
+            <p className="mt-4 text-lg text-muted-foreground">
               Choose the perfect plan for your business. All plans include a 14-day free trial.
-            </Text>
-          </VStack>
-        </Container>
-      </Box>
+            </p>
+          </div>
+        </div>
+      </section>
 
       {/* Pricing Cards */}
-      <Box py={20}>
-        <Container maxW="7xl">
-          <SimpleGrid columns={{ base: 1, md: 3 }} gap={8}>
+      <section className="py-20">
+        <div className="container">
+          <div className="grid gap-8 md:grid-cols-3">
             {/* Starter Plan */}
             <PricingCard
               name="Starter"
@@ -83,7 +120,7 @@ function PricingPage() {
                 "Custom dashboards",
               ]}
               buttonText="Start Free Trial"
-              buttonVariant="solid"
+              buttonVariant="default"
               isPopular={true}
             />
 
@@ -108,17 +145,19 @@ function PricingPage() {
               buttonText="Contact Sales"
               buttonVariant="outline"
             />
-          </SimpleGrid>
-        </Container>
-      </Box>
+          </div>
+        </div>
+      </section>
 
       {/* FAQ Section */}
-      <Box bg="gray.50" py={20}>
-        <Container maxW="4xl">
-          <VStack gap={12}>
-            <Heading size="3xl" textAlign="center">Frequently Asked Questions</Heading>
+      <section className="bg-gray-50 py-20">
+        <div className="container">
+          <div className="mx-auto max-w-3xl">
+            <h2 className="mb-12 text-center text-3xl font-bold">
+              Frequently Asked Questions
+            </h2>
             
-            <VStack gap={8} w="full" align="start">
+            <div className="space-y-8">
               <FAQItem
                 question="Can I change plans anytime?"
                 answer="Yes, you can upgrade or downgrade your plan at any time. Changes take effect at the next billing cycle."
@@ -139,66 +178,90 @@ function PricingPage() {
                 question="Do you offer discounts for annual billing?"
                 answer="Yes! Save 20% when you pay annually. That's 2 months free on all plans."
               />
-            </VStack>
-          </VStack>
-        </Container>
-      </Box>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* CTA Section */}
-      <Box py={20}>
-        <Container maxW="4xl">
-          <VStack gap={6} textAlign="center">
-            <Heading size="3xl">Start Your 14-Day Free Trial</Heading>
-            <Text fontSize="lg" color="gray.600">
+      <section className="bg-primary py-16 sm:py-24">
+        <div className="container">
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
+              Start Your 14-Day Free Trial
+            </h2>
+            <p className="mt-4 text-lg text-blue-100">
               No credit card required. Get instant access to all features.
-            </Text>
-            <RouterLink to="/signup">
-              <Button colorPalette="blue" size="lg">
-                Get Started Now
+            </p>
+            <div className="mt-10">
+              <Button size="lg" variant="secondary" asChild>
+                <RouterLink to="/signup">Get Started Now</RouterLink>
               </Button>
-            </RouterLink>
-          </VStack>
-        </Container>
-      </Box>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Footer */}
-      <Box bg="gray.900" color="gray.400" py={12}>
-        <Container maxW="7xl">
-          <SimpleGrid columns={{ base: 1, md: 4 }} gap={8}>
-            <VStack align="start">
-              <Heading size="md" color="white">SEO Optimizer</Heading>
-              <Text fontSize="sm">
+      <footer className="bg-gray-900 text-gray-400">
+        <div className="container py-12">
+          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            <div>
+              <h3 className="text-lg font-semibold text-white">SEO Optimizer</h3>
+              <p className="mt-2 text-sm">
                 AI-powered SEO optimization platform for modern businesses.
-              </Text>
-            </VStack>
-            
-            <VStack align="start">
-              <Text fontWeight="bold" color="white">Product</Text>
-              <RouterLink to="/features">Features</RouterLink>
-              <RouterLink to="/pricing">Pricing</RouterLink>
-              <RouterLink to="/demo">Demo</RouterLink>
-            </VStack>
-            
-            <VStack align="start">
-              <Text fontWeight="bold" color="white">Company</Text>
-              <RouterLink to="/about">About</RouterLink>
-              <RouterLink to="/blog">Blog</RouterLink>
-              <RouterLink to="/contact">Contact</RouterLink>
-            </VStack>
-            
-            <VStack align="start">
-              <Text fontWeight="bold" color="white">Legal</Text>
-              <RouterLink to="/privacy">Privacy Policy</RouterLink>
-              <RouterLink to="/terms">Terms of Service</RouterLink>
-            </VStack>
-          </SimpleGrid>
-          
-          <Box borderTop="1px" borderColor="gray.800" mt={12} pt={8} textAlign="center">
-            <Text fontSize="sm">© 2024 SEO Optimizer. All rights reserved.</Text>
-          </Box>
-        </Container>
-      </Box>
-    </Box>
+              </p>
+            </div>
+
+            <div>
+              <h4 className="font-semibold text-white">Product</h4>
+              <ul className="mt-4 space-y-2 text-sm">
+                <li>
+                  <RouterLink to="/features" className="hover:text-white">Features</RouterLink>
+                </li>
+                <li>
+                  <RouterLink to="/pricing" className="hover:text-white">Pricing</RouterLink>
+                </li>
+                <li>
+                  <RouterLink to="/demo" className="hover:text-white">Demo</RouterLink>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-semibold text-white">Company</h4>
+              <ul className="mt-4 space-y-2 text-sm">
+                <li>
+                  <RouterLink to="/about" className="hover:text-white">About</RouterLink>
+                </li>
+                <li>
+                  <RouterLink to="/blog" className="hover:text-white">Blog</RouterLink>
+                </li>
+                <li>
+                  <RouterLink to="/contact" className="hover:text-white">Contact</RouterLink>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-semibold text-white">Legal</h4>
+              <ul className="mt-4 space-y-2 text-sm">
+                <li>
+                  <RouterLink to="/privacy" className="hover:text-white">Privacy Policy</RouterLink>
+                </li>
+                <li>
+                  <RouterLink to="/terms" className="hover:text-white">Terms of Service</RouterLink>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="mt-12 border-t border-gray-800 pt-8 text-center">
+            <p className="text-sm">© 2024 SEO Optimizer. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
+    </div>
   )
 }
 
@@ -209,74 +272,69 @@ interface PricingCardProps {
   description: string
   features: string[]
   buttonText: string
-  buttonVariant: "solid" | "outline"
+  buttonVariant: "default" | "outline" | "secondary"
   isPopular?: boolean
 }
 
-function PricingCard({ name, price, period, description, features, buttonText, buttonVariant, isPopular }: PricingCardProps) {
+function PricingCard({ 
+  name, 
+  price, 
+  period, 
+  description, 
+  features, 
+  buttonText, 
+  buttonVariant, 
+  isPopular 
+}: PricingCardProps) {
   return (
-    <Card.Root position="relative" borderWidth={isPopular ? 2 : 1} borderColor={isPopular ? "blue.500" : "gray.200"}>
+    <Card className={`relative ${isPopular ? 'border-primary shadow-lg' : ''}`}>
       {isPopular && (
-        <Box
-          position="absolute"
-          top="-12px"
-          left="50%"
-          transform="translateX(-50%)"
-          bg="blue.600"
-          color="white"
-          px={3}
-          py={1}
-          borderRadius="full"
-          fontSize="sm"
-          fontWeight="bold"
-        >
-          MOST POPULAR
-        </Box>
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+          <span className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-primary-foreground">
+            MOST POPULAR
+          </span>
+        </div>
       )}
       
-      <Card.Body>
-        <VStack gap={6} align="stretch">
-          <VStack gap={2}>
-            <Heading size="lg">{name}</Heading>
-            <HStack justify="center">
-              <Text fontSize="4xl" fontWeight="bold">{price}</Text>
-              <Text color="gray.600">/{period}</Text>
-            </HStack>
-            <Text color="gray.600" textAlign="center">{description}</Text>
-          </VStack>
-          
-          <List.Root variant="plain" gap={3}>
-            {features.map((feature, index) => (
-              <List.Item key={index}>
-                <List.Indicator asChild color="green.500">
-                  <FiCheck />
-                </List.Indicator>
-                {feature}
-              </List.Item>
-            ))}
-          </List.Root>
-          
-          <RouterLink to="/signup">
-            <Button 
-              colorPalette={buttonVariant === "solid" ? "blue" : undefined}
-              variant={buttonVariant}
-              size="lg"
-              w="full"
-            >
-              {buttonText}
-            </Button>
-          </RouterLink>
-        </VStack>
-      </Card.Body>
-    </Card.Root>
+      <CardHeader>
+        <CardTitle className="text-2xl">{name}</CardTitle>
+        <div className="mt-4">
+          <span className="text-4xl font-bold">{price}</span>
+          <span className="text-muted-foreground">/{period}</span>
+        </div>
+        <CardDescription className="mt-2">{description}</CardDescription>
+      </CardHeader>
+      
+      <CardContent>
+        <ul className="space-y-3">
+          {features.map((feature, index) => (
+            <li key={index} className="flex items-start">
+              <Check className="mr-2 mt-0.5 h-4 w-4 text-green-500 flex-shrink-0" />
+              <span className="text-sm">{feature}</span>
+            </li>
+          ))}
+        </ul>
+      </CardContent>
+      
+      <CardFooter>
+        <Button 
+          variant={buttonVariant}
+          className="w-full"
+          size="lg"
+          asChild
+        >
+          <RouterLink to="/signup">{buttonText}</RouterLink>
+        </Button>
+      </CardFooter>
+    </Card>
   )
 }
 
 function FAQItem({ question, answer }: { question: string; answer: string }) {
   return (
-    <VStack align="start" gap={2} w="full">
-      <Heading size="md">{question}</Heading>
-      <Text color="gray.600">{answer}</Text>
-    </VStack>
+    <div>
+      <h3 className="text-lg font-semibold">{question}</h3>
+      <p className="mt-2 text-muted-foreground">{answer}</p>
+    </div>
   )
 }

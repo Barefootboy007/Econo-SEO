@@ -1,267 +1,326 @@
-import { Box, Container, Heading, Text, VStack, HStack, Button, SimpleGrid, Card, Flex, Tabs, Image } from "@chakra-ui/react"
 import { Link as RouterLink, createFileRoute } from "@tanstack/react-router"
 import { 
-  FiSearch, FiTrendingUp, FiTarget, FiBarChart2, FiZap, FiShield,
-  FiGlobe, FiDatabase, FiCpu, FiCheckCircle, FiAlertCircle, FiLink
-} from "react-icons/fi"
+  Search, TrendingUp, Target, BarChart2, Zap, Shield,
+  Globe, Database, Cpu, CheckCircle, AlertCircle, Link,
+  LogOut
+} from "lucide-react"
+import { Button } from "@/components/ui/shadcn-button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/shadcn-card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import useAuth, { isLoggedIn } from "@/hooks/useAuth"
 
 export const Route = createFileRoute("/features")({
   component: FeaturesPage,
 })
 
 function FeaturesPage() {
+  const { logout } = useAuth()
+  const isAuthenticated = isLoggedIn()
+
   return (
-    <Box minH="100vh">
+    <div className="min-h-screen">
       {/* Navigation Header */}
-      <Box as="header" bg="white" borderBottom="1px" borderColor="gray.200" py={4}>
-        <Container maxW="7xl">
-          <Flex justify="space-between" align="center">
-            <RouterLink to="/">
-              <Heading size="lg" color="blue.600">SEO Optimizer</Heading>
-            </RouterLink>
-            <HStack gap={4}>
-              <RouterLink to="/features">Features</RouterLink>
-              <RouterLink to="/pricing">Pricing</RouterLink>
-              <RouterLink to="/about">About</RouterLink>
-              <RouterLink to="/contact">Contact</RouterLink>
-              <RouterLink to="/login">
-                <Button variant="ghost" size="sm">Sign In</Button>
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container flex h-16 items-center">
+          <RouterLink to="/" className="mr-6 flex items-center space-x-2">
+            <span className="text-xl font-bold text-primary">SEO Optimizer</span>
+          </RouterLink>
+          <nav className="flex flex-1 items-center justify-between">
+            <div className="flex items-center space-x-6 text-sm">
+              <RouterLink to="/features" className="transition-colors hover:text-foreground/80 text-foreground">
+                Features
               </RouterLink>
-              <RouterLink to="/signup">
-                <Button colorPalette="blue" size="sm">Get Started</Button>
+              <RouterLink to="/pricing" className="transition-colors hover:text-foreground/80 text-foreground/60">
+                Pricing
               </RouterLink>
-            </HStack>
-          </Flex>
-        </Container>
-      </Box>
+              <RouterLink to="/about" className="transition-colors hover:text-foreground/80 text-foreground/60">
+                About
+              </RouterLink>
+              <RouterLink to="/contact" className="transition-colors hover:text-foreground/80 text-foreground/60">
+                Contact
+              </RouterLink>
+            </div>
+            <div className="flex items-center space-x-4">
+              {isAuthenticated ? (
+                <>
+                  <Button variant="ghost" asChild>
+                    <RouterLink to="/dashboard">Dashboard</RouterLink>
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    onClick={(e) => {
+                      e.preventDefault();
+                      logout();
+                    }}
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Logout
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button variant="ghost" asChild>
+                    <RouterLink to="/login">Sign In</RouterLink>
+                  </Button>
+                  <Button asChild>
+                    <RouterLink to="/signup">Get Started</RouterLink>
+                  </Button>
+                </>
+              )}
+            </div>
+          </nav>
+        </div>
+      </header>
 
       {/* Features Header */}
-      <Box bg="gradient.to-br" bgGradient="to-br" bgGradientFrom="blue.50" bgGradientTo="purple.50" py={20}>
-        <Container maxW="7xl">
-          <VStack gap={6} textAlign="center">
-            <Heading size="4xl">Powerful Features for SEO Excellence</Heading>
-            <Text fontSize="xl" color="gray.600" maxW="3xl">
+      <section className="bg-gradient-to-br from-blue-50 via-white to-purple-50 py-20">
+        <div className="container">
+          <div className="mx-auto max-w-3xl text-center">
+            <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
+              Powerful Features for SEO Excellence
+            </h1>
+            <p className="mt-4 text-lg text-muted-foreground">
               Everything you need to analyze, optimize, and monitor your website's SEO performance in one comprehensive platform.
-            </Text>
-          </VStack>
-        </Container>
-      </Box>
+            </p>
+          </div>
+        </div>
+      </section>
 
       {/* Feature Categories */}
-      <Box py={20}>
-        <Container maxW="7xl">
-          <Tabs.Root defaultValue="scraping" variant="subtle">
-            <Tabs.List justify="center" mb={12}>
-              <Tabs.Trigger value="scraping">Web Scraping</Tabs.Trigger>
-              <Tabs.Trigger value="analysis">SEO Analysis</Tabs.Trigger>
-              <Tabs.Trigger value="optimization">Optimization</Tabs.Trigger>
-              <Tabs.Trigger value="monitoring">Monitoring</Tabs.Trigger>
-            </Tabs.List>
+      <section className="py-20">
+        <div className="container">
+          <Tabs defaultValue="scraping" className="mx-auto max-w-5xl">
+            <TabsList className="grid w-full grid-cols-4">
+              <TabsTrigger value="scraping">Web Scraping</TabsTrigger>
+              <TabsTrigger value="analysis">SEO Analysis</TabsTrigger>
+              <TabsTrigger value="optimization">Optimization</TabsTrigger>
+              <TabsTrigger value="monitoring">Monitoring</TabsTrigger>
+            </TabsList>
 
-            <Tabs.Content value="scraping">
+            <TabsContent value="scraping" className="mt-8">
               <FeatureSection
                 title="Advanced Web Scraping"
                 description="Extract comprehensive data from any website with our powerful scraping engine"
                 features={[
                   {
-                    icon: <FiGlobe />,
+                    icon: <Globe className="h-6 w-6" />,
                     title: "Multi-Page Crawling",
                     description: "Automatically discover and crawl all pages on a website with intelligent link following"
                   },
                   {
-                    icon: <FiDatabase />,
+                    icon: <Database className="h-6 w-6" />,
                     title: "Structured Data Extraction",
                     description: "Extract metadata, content, images, and structured data in organized formats"
                   },
                   {
-                    icon: <FiCpu />,
+                    icon: <Cpu className="h-6 w-6" />,
                     title: "JavaScript Rendering",
                     description: "Full support for modern JavaScript frameworks and dynamic content loading"
                   },
                   {
-                    icon: <FiZap />,
+                    icon: <Zap className="h-6 w-6" />,
                     title: "High-Speed Processing",
                     description: "Concurrent crawling with rate limiting and respectful scraping practices"
                   }
                 ]}
               />
-            </Tabs.Content>
+            </TabsContent>
 
-            <Tabs.Content value="analysis">
+            <TabsContent value="analysis" className="mt-8">
               <FeatureSection
                 title="Comprehensive SEO Analysis"
                 description="Get deep insights into your website's SEO performance and opportunities"
                 features={[
                   {
-                    icon: <FiCheckCircle />,
+                    icon: <CheckCircle className="h-6 w-6" />,
                     title: "Technical SEO Audit",
                     description: "Identify technical issues affecting crawlability, indexability, and performance"
                   },
                   {
-                    icon: <FiTarget />,
+                    icon: <Target className="h-6 w-6" />,
                     title: "Content Analysis",
                     description: "Evaluate content quality, keyword density, readability, and semantic relevance"
                   },
                   {
-                    icon: <FiLink />,
+                    icon: <Link className="h-6 w-6" />,
                     title: "Link Analysis",
                     description: "Analyze internal and external links, anchor text distribution, and link equity"
                   },
                   {
-                    icon: <FiAlertCircle />,
+                    icon: <AlertCircle className="h-6 w-6" />,
                     title: "Issue Detection",
                     description: "Automatically detect broken links, duplicate content, and missing meta tags"
                   }
                 ]}
               />
-            </Tabs.Content>
+            </TabsContent>
 
-            <Tabs.Content value="optimization">
+            <TabsContent value="optimization" className="mt-8">
               <FeatureSection
                 title="AI-Powered Optimization"
                 description="Leverage artificial intelligence to optimize your content and improve rankings"
                 features={[
                   {
-                    icon: <FiZap />,
+                    icon: <Zap className="h-6 w-6" />,
                     title: "Smart Recommendations",
                     description: "Get AI-powered suggestions for titles, meta descriptions, and content improvements"
                   },
                   {
-                    icon: <FiTarget />,
+                    icon: <Target className="h-6 w-6" />,
                     title: "Keyword Optimization",
                     description: "Identify keyword opportunities and optimize content for search intent"
                   },
                   {
-                    icon: <FiTrendingUp />,
+                    icon: <TrendingUp className="h-6 w-6" />,
                     title: "Competitor Analysis",
                     description: "Analyze competitor strategies and identify gaps in your content"
                   },
                   {
-                    icon: <FiShield />,
+                    icon: <Shield className="h-6 w-6" />,
                     title: "Schema Markup",
                     description: "Generate and validate structured data for enhanced search results"
                   }
                 ]}
               />
-            </Tabs.Content>
+            </TabsContent>
 
-            <Tabs.Content value="monitoring">
+            <TabsContent value="monitoring" className="mt-8">
               <FeatureSection
                 title="Real-Time Monitoring"
                 description="Track your SEO performance and get alerts for important changes"
                 features={[
                   {
-                    icon: <FiBarChart2 />,
+                    icon: <BarChart2 className="h-6 w-6" />,
                     title: "Ranking Tracking",
                     description: "Monitor keyword rankings across search engines and locations"
                   },
                   {
-                    icon: <FiTrendingUp />,
+                    icon: <TrendingUp className="h-6 w-6" />,
                     title: "Traffic Analytics",
                     description: "Track organic traffic, conversions, and user behavior metrics"
                   },
                   {
-                    icon: <FiAlertCircle />,
+                    icon: <AlertCircle className="h-6 w-6" />,
                     title: "Alert System",
                     description: "Get instant notifications for ranking changes and technical issues"
                   },
                   {
-                    icon: <FiDatabase />,
+                    icon: <Database className="h-6 w-6" />,
                     title: "Historical Data",
                     description: "Access historical performance data and trend analysis"
                   }
                 ]}
               />
-            </Tabs.Content>
-          </Tabs.Root>
-        </Container>
-      </Box>
+            </TabsContent>
+          </Tabs>
+        </div>
+      </section>
 
       {/* Integration Section */}
-      <Box bg="gray.50" py={20}>
-        <Container maxW="7xl">
-          <VStack gap={12}>
-            <VStack gap={4} textAlign="center">
-              <Heading size="3xl">Seamless Integrations</Heading>
-              <Text fontSize="lg" color="gray.600" maxW="2xl">
+      <section className="bg-gray-50 py-20">
+        <div className="container">
+          <div className="mx-auto max-w-5xl">
+            <div className="mb-12 text-center">
+              <h2 className="text-3xl font-bold">Seamless Integrations</h2>
+              <p className="mt-4 text-lg text-muted-foreground">
                 Connect with your favorite tools and platforms to streamline your SEO workflow
-              </Text>
-            </VStack>
+              </p>
+            </div>
 
-            <SimpleGrid columns={{ base: 2, md: 4, lg: 6 }} gap={8} w="full">
+            <div className="grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-6">
               <IntegrationCard name="Google Analytics" />
               <IntegrationCard name="Search Console" />
               <IntegrationCard name="WordPress" />
               <IntegrationCard name="Shopify" />
               <IntegrationCard name="Slack" />
               <IntegrationCard name="Zapier" />
-            </SimpleGrid>
-          </VStack>
-        </Container>
-      </Box>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* CTA Section */}
-      <Box bg="blue.600" color="white" py={20}>
-        <Container maxW="4xl">
-          <VStack gap={6} textAlign="center">
-            <Heading size="3xl">Experience the Power of AI-Driven SEO</Heading>
-            <Text fontSize="lg" opacity={0.9}>
+      <section className="bg-primary py-16 sm:py-24">
+        <div className="container">
+          <div className="mx-auto max-w-2xl text-center">
+            <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
+              Experience the Power of AI-Driven SEO
+            </h2>
+            <p className="mt-4 text-lg text-blue-100">
               Start your free trial today and see how our platform can transform your SEO strategy
-            </Text>
-            <HStack gap={4}>
-              <RouterLink to="/signup">
-                <Button colorPalette="white" size="lg" bg="white" color="blue.600">
-                  Start Free Trial
-                </Button>
-              </RouterLink>
-              <RouterLink to="/demo">
-                <Button variant="outline" size="lg" borderColor="white" color="white">
-                  Request Demo
-                </Button>
-              </RouterLink>
-            </HStack>
-          </VStack>
-        </Container>
-      </Box>
+            </p>
+            <div className="mt-10 flex items-center justify-center gap-x-6">
+              <Button size="lg" variant="secondary" asChild>
+                <RouterLink to="/signup">Start Free Trial</RouterLink>
+              </Button>
+              <Button size="lg" variant="outline" className="bg-transparent text-white border-white hover:bg-white/10" asChild>
+                <RouterLink to="/demo">Request Demo</RouterLink>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Footer */}
-      <Box bg="gray.900" color="gray.400" py={12}>
-        <Container maxW="7xl">
-          <SimpleGrid columns={{ base: 1, md: 4 }} gap={8}>
-            <VStack align="start">
-              <Heading size="md" color="white">SEO Optimizer</Heading>
-              <Text fontSize="sm">
+      <footer className="bg-gray-900 text-gray-400">
+        <div className="container py-12">
+          <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+            <div>
+              <h3 className="text-lg font-semibold text-white">SEO Optimizer</h3>
+              <p className="mt-2 text-sm">
                 AI-powered SEO optimization platform for modern businesses.
-              </Text>
-            </VStack>
-            
-            <VStack align="start">
-              <Text fontWeight="bold" color="white">Product</Text>
-              <RouterLink to="/features">Features</RouterLink>
-              <RouterLink to="/pricing">Pricing</RouterLink>
-              <RouterLink to="/demo">Demo</RouterLink>
-            </VStack>
-            
-            <VStack align="start">
-              <Text fontWeight="bold" color="white">Company</Text>
-              <RouterLink to="/about">About</RouterLink>
-              <RouterLink to="/blog">Blog</RouterLink>
-              <RouterLink to="/contact">Contact</RouterLink>
-            </VStack>
-            
-            <VStack align="start">
-              <Text fontWeight="bold" color="white">Legal</Text>
-              <RouterLink to="/privacy">Privacy Policy</RouterLink>
-              <RouterLink to="/terms">Terms of Service</RouterLink>
-            </VStack>
-          </SimpleGrid>
-          
-          <Box borderTop="1px" borderColor="gray.800" mt={12} pt={8} textAlign="center">
-            <Text fontSize="sm">© 2024 SEO Optimizer. All rights reserved.</Text>
-          </Box>
-        </Container>
-      </Box>
-    </Box>
+              </p>
+            </div>
+
+            <div>
+              <h4 className="font-semibold text-white">Product</h4>
+              <ul className="mt-4 space-y-2 text-sm">
+                <li>
+                  <RouterLink to="/features" className="hover:text-white">Features</RouterLink>
+                </li>
+                <li>
+                  <RouterLink to="/pricing" className="hover:text-white">Pricing</RouterLink>
+                </li>
+                <li>
+                  <RouterLink to="/demo" className="hover:text-white">Demo</RouterLink>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-semibold text-white">Company</h4>
+              <ul className="mt-4 space-y-2 text-sm">
+                <li>
+                  <RouterLink to="/about" className="hover:text-white">About</RouterLink>
+                </li>
+                <li>
+                  <RouterLink to="/blog" className="hover:text-white">Blog</RouterLink>
+                </li>
+                <li>
+                  <RouterLink to="/contact" className="hover:text-white">Contact</RouterLink>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className="font-semibold text-white">Legal</h4>
+              <ul className="mt-4 space-y-2 text-sm">
+                <li>
+                  <RouterLink to="/privacy" className="hover:text-white">Privacy Policy</RouterLink>
+                </li>
+                <li>
+                  <RouterLink to="/terms" className="hover:text-white">Terms of Service</RouterLink>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="mt-12 border-t border-gray-800 pt-8 text-center">
+            <p className="text-sm">© 2024 SEO Optimizer. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
+    </div>
   )
 }
 
@@ -277,15 +336,15 @@ interface FeatureSectionProps {
 
 function FeatureSection({ title, description, features }: FeatureSectionProps) {
   return (
-    <VStack gap={12}>
-      <VStack gap={4} textAlign="center">
-        <Heading size="2xl">{title}</Heading>
-        <Text fontSize="lg" color="gray.600" maxW="2xl">
+    <div>
+      <div className="mb-8 text-center">
+        <h2 className="text-2xl font-bold">{title}</h2>
+        <p className="mt-2 text-muted-foreground">
           {description}
-        </Text>
-      </VStack>
+        </p>
+      </div>
 
-      <SimpleGrid columns={{ base: 1, md: 2 }} gap={8} w="full">
+      <div className="grid gap-6 md:grid-cols-2">
         {features.map((feature, index) => (
           <FeatureCard
             key={index}
@@ -294,38 +353,36 @@ function FeatureSection({ title, description, features }: FeatureSectionProps) {
             description={feature.description}
           />
         ))}
-      </SimpleGrid>
-    </VStack>
+      </div>
+    </div>
   )
 }
 
 function FeatureCard({ icon, title, description }: { icon: React.ReactNode; title: string; description: string }) {
   return (
-    <Card.Root>
-      <Card.Body>
-        <HStack align="start" gap={4}>
-          <Box color="blue.600" fontSize="2xl" flexShrink={0}>
+    <Card>
+      <CardHeader>
+        <div className="flex items-start gap-4">
+          <div className="text-primary">
             {icon}
-          </Box>
-          <VStack align="start" gap={2}>
-            <Heading size="md">{title}</Heading>
-            <Text color="gray.600">{description}</Text>
-          </VStack>
-        </HStack>
-      </Card.Body>
-    </Card.Root>
+          </div>
+          <div>
+            <CardTitle className="text-lg">{title}</CardTitle>
+            <CardDescription className="mt-2">{description}</CardDescription>
+          </div>
+        </div>
+      </CardHeader>
+    </Card>
   )
 }
 
 function IntegrationCard({ name }: { name: string }) {
   return (
-    <Card.Root>
-      <Card.Body>
-        <VStack gap={2}>
-          <Box w={12} h={12} bg="gray.200" borderRadius="md" />
-          <Text fontSize="sm" fontWeight="medium">{name}</Text>
-        </VStack>
-      </Card.Body>
-    </Card.Root>
+    <Card>
+      <CardContent className="flex flex-col items-center justify-center p-4">
+        <div className="mb-2 h-12 w-12 rounded-md bg-gray-200" />
+        <p className="text-xs font-medium">{name}</p>
+      </CardContent>
+    </Card>
   )
 }
