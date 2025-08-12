@@ -1,6 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query"
 import { Link as RouterLink } from "@tanstack/react-router"
-import { Home, Package, Settings, Users, LucideIcon } from "lucide-react"
+import { Home, Package, Settings, Users, Globe, LucideIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 import type { UserPublic } from "@/client"
@@ -14,6 +14,7 @@ interface Item {
 const items: Item[] = [
   { icon: Home, title: "Dashboard", path: "/dashboard" },
   { icon: Package, title: "Items", path: "/items" },
+  { icon: Globe, title: "Scraper Settings", path: "/scraper-settings" },
   { icon: Settings, title: "User Settings", path: "/settings" },
 ]
 
