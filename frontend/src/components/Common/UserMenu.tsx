@@ -1,10 +1,16 @@
-import { Box, Button, Flex, Text } from "@chakra-ui/react"
 import { Link } from "@tanstack/react-router"
-import { FaUserAstronaut } from "react-icons/fa"
-import { FiLogOut, FiUser } from "react-icons/fi"
+import { User, LogOut, Settings } from "lucide-react"
+import { Button } from "@/components/ui/shadcn-button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 import useAuth from "@/hooks/useAuth"
-import { MenuContent, MenuItem, MenuRoot, MenuTrigger } from "../ui/menu"
 
 const UserMenu = () => {
   const { user, logout } = useAuth()
@@ -14,45 +20,39 @@ const UserMenu = () => {
   }
 
   return (
-    <>
-      {/* Desktop */}
-      <Flex>
-        <MenuRoot>
-          <MenuTrigger asChild p={2}>
-            <Button data-testid="user-menu" variant="solid" maxW="sm" truncate>
-              <FaUserAstronaut fontSize="18" />
-              <Text>{user?.full_name || "User"}</Text>
-            </Button>
-          </MenuTrigger>
-
-          <MenuContent>
-            <Link to="settings">
-              <MenuItem
-                closeOnSelect
-                value="user-settings"
-                gap={2}
-                py={2}
-                style={{ cursor: "pointer" }}
-              >
-                <FiUser fontSize="18px" />
-                <Box flex="1">My Profile</Box>
-              </MenuItem>
-            </Link>
-
-            <MenuItem
-              value="logout"
-              gap={2}
-              py={2}
-              onClick={handleLogout}
-              style={{ cursor: "pointer" }}
-            >
-              <FiLogOut />
-              Log Out
-            </MenuItem>
-          </MenuContent>
-        </MenuRoot>
-      </Flex>
-    </>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="outline"
+          size="sm"
+          className="flex items-center gap-2"
+          data-testid="user-menu"
+        >
+          <User className="h-4 w-4" />
+          <span className="max-w-[150px] truncate">
+            {user?.full_name || user?.email || "User"}
+          </span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-56">
+        <DropdownMenuLabel>My Account</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <Link to="/settings">
+          <DropdownMenuItem className="cursor-pointer">
+            <Settings className="mr-2 h-4 w-4" />
+            <span>My Profile</span>
+          </DropdownMenuItem>
+        </Link>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          className="cursor-pointer text-destructive focus:text-destructive"
+          onClick={handleLogout}
+        >
+          <LogOut className="mr-2 h-4 w-4" />
+          <span>Log Out</span>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }
 
