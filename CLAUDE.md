@@ -1,4 +1,31 @@
-# CLAUDE.md - Project Context for Ecom Optimizer
+# CLAUDE.md - Project Context for SEO Optimizer
+
+## 🎯 PROJECT VISION
+
+Building an **SEO Optimization SaaS Platform** that:
+1. **Scrapes websites** using Crawl4AI (with multiple input methods)
+2. **Stores content** in a multi-tenant database (Supabase with RLS)
+3. **Applies AI-powered SEO tools** to optimize content
+4. **Provides search & RAG** capabilities across all scraped content
+5. **Exports optimized content** via CSV or direct CMS integration
+
+### Core User Workflow:
+1. **Input URLs**: Manual upload, sitemap parsing, or recursive crawling (like Screaming Frog)
+2. **Scrape Content**: Using configurable Crawl4AI settings (stored per user)
+3. **Store in Database**: Original content preserved, versions tracked
+4. **Apply SEO Tools**: 8 AI-powered optimization tools (using user's API keys)
+5. **Edit & Review**: Database-driven editor with real-time tool application
+6. **Export Results**: CSV download or bulk upload to WordPress/CMS
+
+### Key Architecture Decisions:
+- **Multi-tenancy**: Row-Level Security (RLS) - users only see their own data
+- **Concurrency**: Crawl4AI connection pooling (5-10 instances) for multiple users
+- **Processing**: Hybrid approach - immediate for <10 URLs, batch for large crawls
+- **Version Control**: Immutable content versions with full history tracking
+- **API Keys**: Per-user encrypted storage for OpenAI/DeepSeek/etc
+- **Search**: Page-based RAG using pgvector for semantic search
+- **External Data**: GSC performance metrics drive optimization decisions
+- **Integrations**: Google Search Console (OAuth), Analytics, Ahrefs/SEMrush, ScrapingDog (fallback)
 
 ## CRITICAL PROJECT FACTS
 
@@ -27,19 +54,26 @@
 
 ## CURRENT PROJECT STATE
 
-### Completed
-- ✅ Frontend migration to shadcn/ui (homepage, pricing, features, dashboard)
-- ✅ Pure Crawl4AI scraper implementation
-- ✅ Scraping API endpoints with rate limiting
-- ✅ Authentication flow fixed
+### Completed (75% MVP)
+- ✅ Phase 0: Project setup with FastAPI + React + Supabase
+- ✅ Phase 1: Backend base with authentication
+- ✅ Phase 3: Crawl4AI integration with SEO extraction
+- ✅ Phase 4: Frontend migration to shadcn/ui
+- ✅ Scraper settings page with OpenAPI client integration
 
-### In Progress
-- 🔄 Creating scraper settings page (needs to be in routes/, not pages/)
+### Next Priority: Database Schema (Phase 2)
+- 🎯 Create multi-tenant database tables
+- 🎯 Implement Row-Level Security (RLS)
+- 🎯 Enable pgvector for RAG/search
 
-### TODO
-- WebSocket support for real-time scraping progress
+### Upcoming Work
+- Crawler pool management (5-10 instances)
+- WebSocket for real-time progress
 - Celery + Redis for background tasks
-- Frontend scraper settings page (properly integrated with Tanstack Router)
+- URL discovery methods (sitemap, recursive)
+- SEO tools integration (8 tools)
+- Content editor with version control
+- Export/Import functionality
 
 ## ARCHITECTURE NOTES
 
@@ -87,13 +121,28 @@ cd backend && .\venv\Scripts\activate && python -m uvicorn app.main:app --reload
 cd frontend && npx shadcn@latest add [component-name] --yes
 ```
 
-## CURRENT TASK CONTEXT
+## DATABASE SCHEMA OVERVIEW
 
-User wants a scraper settings page that:
-1. Allows users to configure scraping behavior
-2. Has presets (fast, standard, thorough, stealth)
-3. Integrates with the existing app structure
-4. Uses shadcn/ui components
-5. Works with Tanstack Router (NOT Next.js pages)
+### Multi-tenant Tables (all with user_id for RLS):
+- `websites` - User's domains with crawl settings
+- `pages` - Individual URLs per website
+- `content_versions` - Version control (original/optimized/draft) with parent linking
+- `seo_metadata` - Extracted SEO data per content version
+- `scrape_jobs` - Track scraping progress
+- `api_keys` - Encrypted user API keys
+- `page_embeddings` - For RAG/semantic search
 
-The page was mistakenly created in `src/pages/` but needs to be in `src/routes/` to work with Tanstack Router.
+### External Data Tables:
+- `external_connections` - OAuth tokens for GSC, GA, etc.
+- `gsc_performance` - Daily Google Search Console metrics
+- `gsc_page_insights` - Aggregated insights and opportunities
+- `external_seo_metrics` - Ahrefs, SEMrush, Moz data
+- `keyword_tracking` - Position tracking with history
+
+### Processing Strategy:
+- **Fast Path**: <10 URLs → immediate processing
+- **Batch Path**: >10 URLs → background queue
+- **Crawler Pool**: 5-10 Crawl4AI instances shared across users
+- **Caching**: 24-hour TTL to avoid duplicate scraping
+- **Data-Driven**: GSC metrics inform optimization prompts
+- **Version Tracking**: Compare performance across content versions

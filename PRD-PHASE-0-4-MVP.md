@@ -79,30 +79,137 @@ An SEO optimization SaaS platform that scrapes websites, stores content in a cen
 - **Framework**: React 18+ with TypeScript
 - **Build Tool**: Vite
 - **UI Library**: shadcn/ui (Tailwind CSS based)
-- **State Management**: Zustand or Context API
-- **HTTP Client**: Axios or Fetch API
+- **State Management**: Tanstack Query + Context API
+- **HTTP Client**: OpenAPI generated client
 - **WebSocket Client**: socket.io-client
 
 #### Database
 - **Provider**: Supabase (PostgreSQL as a service)
-- **Extensions**: pgvector (for future RAG features)
-- **ORM**: SQLAlchemy 2.0+
+- **Extensions**: pgvector (for RAG/semantic search)
+- **ORM**: SQLAlchemy 2.0+ with SQLModel
 - **Migrations**: Alembic
+- **Multi-tenancy**: Row Level Security (RLS) policies
 
-#### Web Scraping
-- **Library**: Crawl4AI 0.6.2+
+#### Web Scraping Infrastructure
+- **Library**: Crawl4AI 0.6.2+ with AsyncWebCrawler
+- **Concurrency**: Connection pooling (5-10 instances)
 - **Browser Engine**: Playwright (Chromium)
 - **Markdown Conversion**: Built-in Crawl4AI converter
+- **URL Discovery**: Manual upload, sitemap parsing, recursive crawling
+- **Caching**: 24-hour TTL for scraped content
 
-#### Background Tasks
-- **Queue**: Celery 5.4+
+#### Background Tasks & Queue System
+- **Queue**: Celery 5.4+ with Redis broker
 - **Broker**: Redis (local for MVP, Upstash for production)
+- **Job Types**: Scraping, SEO processing, bulk operations
 - **Monitoring**: Flower (Celery monitoring tool)
+- **Concurrency**: Per-user rate limiting
 
 #### Real-time Communication
 - **Protocol**: WebSocket
 - **Library**: python-socketio (backend), socket.io-client (frontend)
 - **Events**: Progress updates, status changes, errors
+
+### 2.2 Database Schema Design
+
+#### Core Tables (Multi-tenant Architecture)
+```sql
+-- User's websites
+websites: id, user_id, domain, sitemap_url, created_at, last_crawled, crawl_frequency
+
+-- Individual pages per website  
+pages: id, website_id, user_id, url, path, depth, status_code, last_scraped
+
+-- Content versioning system
+content_versions: id, page_id, user_id, version_type (original/optimized/draft), 
+                 content_markdown, content_html, created_at, created_by
+
+-- SEO metadata extracted
+seo_metadata: id, page_id, user_id, title, meta_description, h1_tags[], 
+             h2_tags[], images[], links_internal, links_external, 
+             structured_data, open_graph
+
+-- Scraping job tracking
+scrape_jobs: id, user_id, website_id, job_type, status, total_urls, 
+            processed_urls, failed_urls, started_at, completed_at
+
+-- User API keys (encrypted)
+api_keys: id, user_id, service_name, api_key, is_active
+
+-- RAG embeddings
+page_embeddings: id, page_id, user_id, embedding_vector, chunk_text, chunk_index
+
+-- External API connections
+external_connections: id, user_id, service_name, connection_type, credentials, 
+                     properties[], last_sync, is_active
+
+-- Google Search Console data
+gsc_performance: id, page_id, user_id, date, clicks, impressions, ctr, position,
+                query, device, country, search_appearance
+
+-- GSC aggregated insights
+gsc_page_insights: id, page_id, user_id, period, total_clicks, total_impressions,
+                  avg_ctr, avg_position, top_queries[], low_hanging_fruits[]
+
+-- External SEO metrics (Ahrefs, SEMrush, etc.)
+external_seo_metrics: id, page_id, user_id, source, metrics_json, fetched_at
+
+-- Keyword position tracking
+keyword_tracking: id, page_id, user_id, keyword, current_position, search_volume,
+                 difficulty, position_history[], competitor_urls[]
+```
+
+### 2.3 Content Storage & Version Control
+
+#### Three-Layer Storage Model
+1. **Page Reference Layer**: Basic page information and status
+2. **Content Versions Layer**: Immutable content versions (original, optimized, draft)
+3. **SEO Metadata Layer**: Structured SEO data per content version
+
+#### Version Control System
+- Original content always preserved (version 1.0)
+- Each optimization creates new version with parent link
+- Draft system for work-in-progress
+- Active version marking for production content
+- Full version history with rollback capability
+
+### 2.4 External Data Integration
+
+#### Google Search Console Integration
+- **OAuth2 Authentication**: Secure connection to user's GSC account
+- **Daily Data Sync**: Automated performance data collection
+- **Metrics Tracked**: Clicks, impressions, CTR, position by query/device/country
+- **Insights Generation**: Automatic opportunity identification
+- **Performance Comparison**: Track optimization impact on rankings
+
+#### External SEO Tools
+- **Supported Services**: Ahrefs, SEMrush, Moz, DataForSEO
+- **API Key Management**: Encrypted storage per user
+- **Data Points**: Backlinks, domain rating, keyword rankings
+- **Sync Frequency**: Configurable (daily/weekly/monthly)
+
+#### Data-Driven Optimization
+- **GSC-Informed Tools**: Use real performance data in prompts
+- **Opportunity Detection**: Identify low-hanging fruits (high impressions, low CTR)
+- **Quick Wins**: Target position 11-20 keywords for page 1
+- **Performance Tracking**: Compare content versions against metrics
+
+### 2.5 Processing Architecture
+
+#### Hybrid Processing Strategy
+1. **Fast Path** (<10 URLs): Immediate SEO tool application for real-time feedback
+2. **Batch Path** (>10 URLs): Queue-based background processing for efficiency
+
+#### Crawler Pool Management
+- **Pool Size**: 5-10 concurrent Crawl4AI instances
+- **User Isolation**: Per-user rate limiting and queue prioritization
+- **Resource Management**: Connection pooling with acquire/release pattern
+- **Caching**: 24-hour TTL for recently scraped URLs
+
+#### URL Discovery Methods
+1. **Manual Upload**: Direct URL list input with validation
+2. **Sitemap Parsing**: Automatic extraction from sitemap.xml
+3. **Recursive Crawling**: Screaming Frog-style with configurable depth
 
 ---
 

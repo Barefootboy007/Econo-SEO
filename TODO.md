@@ -44,20 +44,49 @@ Building an SEO optimization SaaS platform with 8 core tools, using FastAPI + Re
 - [ ] **NEXT**: Set up WebSocket support for real-time progress
 - [ ] Configure Celery + Redis for background tasks
 
-## Phase 2: Database Schema Setup (Day 6-7)
-- [ ] Design and create database schema (websites, pages, content_versions tables)
-- [ ] Create SQL migrations for Supabase
-- [ ] Enable pgvector extension for future RAG features
-- [ ] Set up Row Level Security (RLS) policies
-- [ ] Create database service layer in FastAPI
+## Phase 2: Database Schema Setup (Day 6-7) 🎯 NEXT PRIORITY
+### Core Tables Implementation
+- [ ] Create `websites` table (user domains, sitemaps, crawl settings)
+- [ ] Create `pages` table (individual URLs per website)
+- [ ] Create `content_versions` table (original vs optimized content with versioning)
+- [ ] Create `seo_metadata` table (extracted SEO data per version)
+- [ ] Create `scrape_jobs` table (track scraping sessions)
+- [ ] Create `api_keys` table (user's encrypted API keys)
+- [ ] Create `page_embeddings` table (for RAG/semantic search)
 
-## Phase 3: Crawl4AI Integration (Day 8-10) ✅ COMPLETED (Dec 12, 2024)
+### External Data Integration Tables
+- [ ] Create `external_connections` table (OAuth tokens for GSC, GA, etc.)
+- [ ] Create `gsc_performance` table (Google Search Console metrics)
+- [ ] Create `gsc_page_insights` table (aggregated GSC insights)
+- [ ] Create `external_seo_metrics` table (Ahrefs, SEMrush, Moz data)
+- [ ] Create `keyword_tracking` table (keyword position tracking)
+
+### Database Configuration
+- [ ] Enable pgvector extension for semantic search
+- [ ] Implement Row Level Security (RLS) policies for all tables
+- [ ] Add user_id foreign key to all tables for multi-tenancy
+- [ ] Create indexes for performance optimization
+- [ ] Set up database migrations with Alembic
+
+## Phase 3: Crawl4AI Advanced Integration (Day 8-10)
+### ✅ COMPLETED (Dec 12, 2024)
 - [x] ~~Integrate Crawl4AI from Archon's crawling service~~
 - [x] ~~Create scraping API endpoint with URL validation~~
 - [x] ~~Implement markdown conversion pipeline~~
-- [ ] Add progress tracking via WebSocket
-- [ ] Store scraped content in Supabase
 - [x] ~~Test end-to-end scraping flow~~
+
+### 🚧 Enhanced Crawler Infrastructure (NEW)
+- [ ] Implement CrawlerPoolManager with 5-10 concurrent instances
+- [ ] Create connection pooling for multi-user support
+- [ ] Add queue-based scraping with Celery + Redis
+- [ ] Implement WebSocket progress tracking
+- [ ] Add caching layer for recently scraped URLs (24hr TTL)
+
+### 📥 URL Discovery Methods (NEW)
+- [ ] Manual URL upload interface and validation
+- [ ] Sitemap.xml parser for automatic URL extraction
+- [ ] Recursive crawler (Screaming Frog-style) with depth control
+- [ ] URL deduplication and smart batching
 
 ## Phase 4: Basic Frontend (Day 11-13) ✅ COMPLETED (Dec 12, 2024)
 - [x] ~~Set up React + Vite + TypeScript from Archon frontend~~
@@ -75,13 +104,26 @@ Building an SEO optimization SaaS platform with 8 core tools, using FastAPI + Re
 
 ---
 
-## Phase 5: SEO Tools Implementation (Day 14-21)
+## Phase 5: Processing Pipeline & SEO Tools (Day 14-21)
+### Content Processing Architecture
+- [ ] Implement hybrid processing (immediate for <10 URLs, batch for large)
+- [ ] Create content versioning system (original, optimized, draft)
+- [ ] Build SEO metadata extraction pipeline
+- [ ] Add background job processing with Celery
+
+### SEO Tools Integration
 - [ ] Convert meta-updater n8n workflow to Python
 - [ ] Create API endpoint for meta optimization
-- [ ] Add OpenAI/DeepSeek LLM integration
-- [ ] Implement content version control (original vs optimized)
+- [ ] Add OpenAI/DeepSeek LLM integration with user API keys
+- [ ] Implement per-user API key management (encrypted storage)
 - [ ] Convert and add remaining 7 SEO tools
 - [ ] Create unified tool interface in frontend
+
+### Editor Integration
+- [ ] Build database-driven content editor backend
+- [ ] Real-time SEO tool application in editor
+- [ ] Version tracking and rollback functionality
+- [ ] Bulk operations support
 
 ### SEO Tools Priority Order:
 1. **Meta Updater** - Easiest to implement, immediate value
@@ -93,17 +135,59 @@ Building an SEO optimization SaaS platform with 8 core tools, using FastAPI + Re
 7. **Category Page Rewriter** - E-commerce categories
 8. **Product Page Rewriter** - Product optimization
 
-## Phase 6: Export & Import Features (Day 22-24)
-- [ ] Build CSV export functionality
-- [ ] Add CSV import with field mapping
+## Phase 6: RAG System & Search (Day 22-24)
+### Semantic Search Implementation
+- [ ] Enable pgvector extension in Supabase
+- [ ] Implement page-based chunking strategy
+- [ ] Create embedding generation pipeline
+- [ ] Build semantic search API endpoints
+
+### Search Features
+- [ ] URL-based search and filtering
+- [ ] Full-text search across content
+- [ ] Semantic similarity search
+- [ ] Advanced filtering (date, status, domain)
+
+## Phase 7: Export, Import & Integrations (Day 25-27)
+### Export/Import Features
+- [ ] Build CSV export with custom field mapping
+- [ ] Add CSV import with validation
 - [ ] Create bulk operations interface
 - [ ] Add download progress indicators
 
-## Phase 7: Testing & Polish (Day 25-28)
+### External Integrations
+- [ ] Google Search Console OAuth implementation
+- [ ] GSC data sync service (daily performance data)
+- [ ] GSC insights generator (opportunities, recommendations)
+- [ ] Google Analytics 4 integration
+- [ ] Ahrefs/SEMrush API integration
+- [ ] ScrapingDog as fallback scraper
+- [ ] DataForSEO for keyword research
+- [ ] WordPress/CMS bulk upload APIs
+- [ ] Webhook system for external updates
+- [ ] Automated sync scheduler with Celery
+
+## Phase 8: Analytics & Performance Dashboard (Day 28-30)
+### Analytics Integration
+- [ ] Create analytics dashboard page
+- [ ] Build GSC performance charts (clicks, impressions, CTR, position)
+- [ ] Implement keyword ranking tracker
+- [ ] Create content version performance comparison
+- [ ] Build opportunities dashboard (low-hanging fruits)
+
+### Data-Driven Optimization
+- [ ] GSC-informed SEO tool optimization
+- [ ] Performance-based content recommendations
+- [ ] A/B testing framework for content versions
+- [ ] ROI tracking for optimizations
+
+## Phase 9: Testing & Polish (Day 31-33)
 - [ ] Add error handling and validation throughout
 - [ ] Create Docker compose for local development
 - [ ] Write basic API tests
 - [ ] Deploy to staging environment (Vercel + Railway/Render)
+- [ ] Performance testing with multiple concurrent users
+- [ ] Load testing for crawler pool
 
 ---
 
