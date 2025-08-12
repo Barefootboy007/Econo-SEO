@@ -1,0 +1,17 @@
+{
+  "mcpServers": {},
+  "projectInfo": {
+    "name": "SEO Optimizer Platform",
+    "description": "Web scraping and SEO optimization SaaS platform",
+    "techStack": {
+      "backend": "FastAPI + Python 3.11",
+      "frontend": "React + TypeScript + shadcn/ui",
+      "database": "Supabase (PostgreSQL + pgvector)",
+      "scraping": "Crawl4AI",
+      "queue": "Celery + Redis",
+      "realtime": "WebSockets"
+    },
+    "currentPhase": "Phase 0 - Project Setup",
+    "projectPath": "C:/Users/UKGC/Documents/1_man_Agency/Product Developement/Ecom optimsiser"
+  }
+}

@@ -1,0 +1,1368 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -920,
+        180
+      ],
+      "id": "33a2d582-d98a-4dcd-b159-f5f379feb833",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1WKR9jRsejUjUxqMqzKyVmziAzZm88nS7-Ljk-O4t9aI",
+          "mode": "list",
+          "cachedResultName": "Blog post updator ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1WKR9jRsejUjUxqMqzKyVmziAzZm88nS7-Ljk-O4t9aI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "List of blogs ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1WKR9jRsejUjUxqMqzKyVmziAzZm88nS7-Ljk-O4t9aI/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -720,
+        200
+      ],
+      "id": "bfad57bf-1cd6-486a-a153-d75d801cfd5c",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "oyhduPdBw1ea9W4y",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {
+          "reset": false
+        }
+      },
+      "name": "SplitInBatches",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        -340,
+        200
+      ],
+      "typeVersion": 1,
+      "id": "31536887-f6bb-47b0-90b3-7911c0c9bc67"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Helper function to extract specific tags using regex\nconst extractTagContent = (html, tag) => {\n  const regex = new RegExp(`<${tag}[^>]*>(.*?)</${tag}>`, 'gi');\n  const matches = html.match(regex) || [];\n  return matches.map(match => match.replace(/<[^>]*>/g, '').trim());\n};\n\n// Helper function to extract meta tags\nconst extractMetaContent = (html, metaName) => {\n  const regex = new RegExp(`<meta name=[\"']${metaName}[\"'] content=[\"'](.*?)[\"']`, 'i');\n  const match = html.match(regex);\n  return match ? match[1] : 'Not Found';\n};\n\n// Main processing function\nconst processItem = (item) => {\n  const rawHtml = item.json.data; // Access raw HTML from \"data\" key\n  \n  if (!rawHtml) {\n    throw new Error('No HTML content found in input data.');\n  }\n\n  return {\n    metaTitle: extractTagContent(rawHtml, 'title')[0] || 'Not Found',\n    metaDescription: extractMetaContent(rawHtml, 'description'),\n    h1Heading: extractTagContent(rawHtml, 'h1')[0] || 'Not Found',\n    h2Headings: extractTagContent(rawHtml, 'h2'),\n    h3Headings: extractTagContent(rawHtml, 'h3'),\n  };\n};\n\n// Process all items\nreturn items.map(processItem);\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        300,
+        100
+      ],
+      "id": "85c1ca85-6496-45bd-b8cb-df8b9c7ae406",
+      "name": "Meta Extractor",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        480,
+        100
+      ],
+      "id": "3f78df7c-a09e-4a9e-83c8-fe7f3c59814b",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "VMIZpnzkHuPAc1g5",
+          "name": "OpenAi account Mine "
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        440,
+        440
+      ],
+      "id": "c58edf83-f3e5-4e8c-9f9c-04aebb7a31c7",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "VMIZpnzkHuPAc1g5",
+          "name": "OpenAi account Mine "
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "perplexity/sonar",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        460,
+        300
+      ],
+      "id": "e3fef47a-102f-4f2b-87de-1bac2682819e",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "Fpdp3uXrN0vUevHD",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are conducting deep content analysis for a webpage using live data scraping. \n\nInput Context:\n- Meta Title: {{ $json.metaTitle }}\n- Meta Description: {{ $json.metaDescription }}\n- Page Title (H1): {{ $json.h1Heading }}\n\nInstructions:\nScrape and analyze the target page and surrounding top search results using full-page text (including main body content, headings, and structured data where available).\n\nPerform the following tasks:\n\n## 1. Technical Analysis\n- Extract frequent keywords, keyphrases, and related terminology.\n- Generate a term frequency matrix showing word usage importance.\n- Identify factual data points (dates, statistics, claims, specific numbers).\n- Extract Named Entities (People, Organizations, Places, Events, Products).\n- Detect Attribute-Value pairs (e.g., Feature: Specification, Benefit: Description).\n- Detect structured data (schema.org JSON-LD) if available.\n- Calculate cosine similarity across different sections of the page.\n\n## 2. Intent and Context Analysis\n- Compare keyword patterns against common search intent models.\n- Analyze semantic relationships between main concepts.\n- Identify primary searcher intent (informational, navigational, transactional, opinion).\n- Detect the source content style (e.g., tutorial, guide, opinion article, listicle, etc.).\n- Summarize conceptual topics (e.g., \"Environmental Sustainability\" if multiple eco-related terms are dominant).\n- Extract frequently asked questions (FAQs) and naturally embedded question phrases.\n- Optional: Detect sentiment polarity (Positive/Neutral/Negative) around main topics.\n\n## 3. Output Structure\nProvide results in the following structure:\n\n- **Technical Data**: \n  - Bullet points listing extracted frequent keywords, keyphrases, and named entities.\n  - Term frequency matrix (keyword + count/rank).\n  - List of detected Attribute-Value pairs (if any).\n  - List of factual data points.\n\n- **Search Intent and Style Analysis**: \n  - Paragraph summarizing the detected searcher intent and overall content style.\n\n- **Conceptual Topics Summary**: \n  - List of generalized topics abstracted from detailed terms.\n\n- **Related Topics and Terms**: \n  - Frequency-ranked list of related terms or concepts.\n\n- **Questions/FAQs**:\n  - List of detected questions embedded within the content.\n\n- **(Optional) Sentiment Analysis**: \n  - Sentiment summary on dominant topics if detectable.\n\n## Output Enforcement\n- **Mandatory Section Completion**: If a section’s data is not explicitly available, infer the best plausible content based on the page’s overall semantic meaning and patterns.\n- **No Empty Sections**: Only leave a section blank if absolutely no related information can be found or reasonably inferred.\n- **Structured Output Priority**: Maintain clean markdown formatting with clear separations between sections.\n\nNotes:\n- Prioritize factual and semantic richness over surface-level keyword matching.\n- Focus extraction on main article content; ignore navigation, cookie banners, ads, or repetitive sidebar/footer text.\n\nEnd of Instruction.\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        560,
+        200
+      ],
+      "id": "949891cb-c6c5-4f1a-95b4-a8be56c20d48",
+      "name": "Data Research Agent",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "numberInputs": 7,
+        "options": {
+          "includeUnpaired": true
+        }
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        3420,
+        160
+      ],
+      "id": "39021226-3501-4127-9c34-d5e65e080862",
+      "name": "Merge1",
+      "alwaysOutputData": true,
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1WKR9jRsejUjUxqMqzKyVmziAzZm88nS7-Ljk-O4t9aI",
+          "mode": "list",
+          "cachedResultName": "Blog post updator ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1WKR9jRsejUjUxqMqzKyVmziAzZm88nS7-Ljk-O4t9aI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1431152810,
+          "mode": "list",
+          "cachedResultName": "rewritten blogs ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1WKR9jRsejUjUxqMqzKyVmziAzZm88nS7-Ljk-O4t9aI/edit#gid=1431152810"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Title Tag": "={{ $json.title }}",
+            "Description ": "={{ $json.description }}",
+            "Rewritten Product -  Markdown ": "={{ $json.output }}",
+            "Rewritten Content HTML ": "={{ $json.html }}",
+            "Blog post URL ": "={{ $json['URLS '] }}",
+            "HTML Table or Infographic ": "={{ $json.HTMLInfographicOrTable }}",
+            "image prompts": "={{ $json.ImagePrompts }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Blog post URL ",
+              "displayName": "Blog post URL ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Title Tag",
+              "displayName": "Title Tag",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Description ",
+              "displayName": "Description ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Rewritten Product -  Markdown ",
+              "displayName": "Rewritten Product -  Markdown ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Rewritten Content HTML ",
+              "displayName": "Rewritten Content HTML ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "HTML Table or Infographic ",
+              "displayName": "HTML Table or Infographic ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "image prompts",
+              "displayName": "image prompts",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "cellFormat": "RAW"
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        3660,
+        240
+      ],
+      "id": "af3300ee-868f-4382-9ae6-25702ec9e4b2",
+      "name": "Google Sheets1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "oyhduPdBw1ea9W4y",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "numberInputs": 4,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        1220,
+        140
+      ],
+      "id": "19bae79e-1488-4169-b116-8ab4d8dfcaa1",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        2420,
+        560
+      ],
+      "id": "ca0afc6e-68b2-4562-a78d-f072ca865ad6",
+      "name": "OpenAI Chat Model3",
+      "credentials": {
+        "openAiApi": {
+          "id": "VMIZpnzkHuPAc1g5",
+          "name": "OpenAi account Mine "
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => {\n  return {\n    json: {\n      description: item.json.output\n    },\n    pairedItem: 0\n  };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2780,
+        560
+      ],
+      "id": "7d9f8d60-14e6-4945-ad5a-bfc13808b144",
+      "name": "Meta Description Extractor"
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => {\n  return {\n    json: {\n      title: item.json.output\n    },\n    pairedItem: 0\n  };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2780,
+        380
+      ],
+      "id": "4e31b113-9c02-4177-8660-d4530125def6",
+      "name": "Meta Title Extractor"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Process product descriptions and format them to clean, structured markdown\nfor (const item of $input.all()) {\n  let productText = item[\"Final Product Page\"];\n  \n  if (productText && typeof productText === 'string') {\n    // Step 1: If this is a JSON string, parse it\n    if (productText.startsWith('\"') && productText.endsWith('\"')) {\n      try {\n        productText = JSON.parse(productText);\n      } catch (e) {\n        // Manual cleanup if JSON parsing fails\n        productText = productText\n          .substring(1, productText.length - 1)\n          .replace(/\\\\n/g, \"\\n\")\n          .replace(/\\\\\"/g, '\"')\n          .replace(/\\\\\\\\/g, \"\\\\\");\n      }\n    }\n    \n    // Step 2: Create a new field with HTML representation for display\n    // This will allow n8n to show it properly instead of the escaped version\n    const htmlOutput = productText\n      .replace(/\\n/g, \"<br>\")                 // Convert newlines to HTML breaks\n      .replace(/## (.*?)$/gm, \"<h2>$1</h2>\")  // Format h2 headings\n      .replace(/### (.*?)$/gm, \"<h3>$1</h3>\") // Format h3 headings\n      .replace(/\\*\\*(.*?)\\*\\*/g, \"<strong>$1</strong>\") // Bold text\n      .replace(/- (.*?)$/gm, \"• $1<br>\")      // Format bullet points\n      .replace(/  /g, \"&nbsp;&nbsp;\");        // Preserve spaces\n      \n    // Add a new field for the HTML view\n    item[\"Product Page HTML\"] = htmlOutput;\n    \n    // Also keep a clean markdown version with proper newlines\n    item[\"Clean Markdown\"] = productText;\n    \n    // Step 3: Update the original field with the cleaned text \n    // (this will still show as JSON in n8n's interface)\n    item[\"Final Product Page\"] = productText;\n  }\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2780,
+        120
+      ],
+      "id": "91b88197-41d8-41ab-9f05-44f4c6297c90",
+      "name": "Markdown Formatting"
+    },
+    {
+      "parameters": {
+        "jsCode": "// For n8n: Extract only the HTML content from the JSON\nfunction processItem(item) {\n  try {\n    // If the item already has htmlContent field, use it directly\n    if (item.json.htmlContent) {\n      item.json = { html: item.json.htmlContent };\n    } \n    // Convert markdown from 'output' field\n    else if (item.json.output) {\n      const markdownContent = item.json.output;\n      item.json = { html: markdownToHtml(markdownContent) };\n    } \n    else {\n      item.json = { error: \"No htmlContent or output field found\" };\n    }\n  } catch (error) {\n    item.json = { error: `Error processing HTML: ${error.message}` };\n  }\n  return item;\n}\n\n// Markdown to HTML conversion function\nfunction markdownToHtml(markdown) {\n  if (!markdown) return '';\n\n  // 1. Convert Markdown headers (H1 to H6)\n  let html = markdown\n    .replace(/^###### (.*?)$/gm, '<h6>$1</h6>')\n    .replace(/^##### (.*?)$/gm, '<h5>$1</h5>')\n    .replace(/^#### (.*?)$/gm, '<h4>$1</h4>')\n    .replace(/^### (.*?)$/gm, '<h3>$1</h3>')\n    .replace(/^## (.*?)$/gm, '<h2>$1</h2>')\n    .replace(/^# (.*?)$/gm, '<h1>$1</h1>');\n\n  // 2. Convert bold and italic markdown\n  html = html\n    .replace(/\\*\\*(.*?)\\*\\*/g, '<strong>$1</strong>') // Bold\n    .replace(/\\*(.*?)\\*/g, '<em>$1</em>');            // Italic\n\n  // 3. Handle unordered lists with support for nesting\n  const lines = html.split('\\n');\n  let processedLines = [];\n  let inList = false;\n  let previousIndentLevel = 0;\n  let listStack = [];\n\n  for (let i = 0; i < lines.length; i++) {\n    let line = lines[i];\n    const listMatch = line.match(/^(\\s*)- (.*?)$/);\n\n    if (listMatch) {\n      const [fullMatch, indent, content] = listMatch;\n      const indentLevel = Math.floor(indent.length / 2);\n\n      if (!inList) {\n        processedLines.push('<ul>');\n        listStack.push('</ul>');\n        inList = true;\n      }\n\n      if (indentLevel > previousIndentLevel) {\n        processedLines[processedLines.length - 1] = processedLines[processedLines.length - 1].replace('</li>', '');\n        processedLines.push('<ul>');\n        listStack.push('</ul></li>');\n      } else if (indentLevel < previousIndentLevel) {\n        while (previousIndentLevel > indentLevel) {\n          processedLines.push(listStack.pop());\n          previousIndentLevel--;\n        }\n      }\n\n      processedLines.push(`<li>${content}</li>`);\n      previousIndentLevel = indentLevel;\n    } else {\n      if (inList) {\n        while (listStack.length > 0) {\n          processedLines.push(listStack.pop());\n        }\n        inList = false;\n        previousIndentLevel = 0;\n      }\n      processedLines.push(line);\n    }\n  }\n\n  if (inList) {\n    while (listStack.length > 0) {\n      processedLines.push(listStack.pop());\n    }\n    inList = false;\n  }\n\n  html = processedLines.join('\\n');\n\n  // 4. Wrap remaining lines in <p> tags (paragraphs)\n  const paragraphLines = html.split('\\n');\n  let inParagraph = false;\n  let result = [];\n\n  for (let i = 0; i < paragraphLines.length; i++) {\n    let line = paragraphLines[i].trim();\n\n    if (!line) {\n      if (inParagraph) {\n        result[result.length - 1] += '</p>';\n        inParagraph = false;\n      }\n      continue;\n    }\n\n    if (line.startsWith('<')) {\n      if (inParagraph) {\n        result[result.length - 1] += '</p>';\n        inParagraph = false;\n      }\n      result.push(line);\n      continue;\n    }\n\n    if (!inParagraph) {\n      result.push('<p>' + line);\n      inParagraph = true;\n    } else {\n      result[result.length - 1] += '<br>' + line;\n    }\n  }\n\n  if (inParagraph) {\n    result[result.length - 1] += '</p>';\n  }\n\n  html = result.join('\\n');\n\n  // 5. Clean-up\n  html = html\n    .replace(/<p><\\/p>/g, '') // Remove empty <p>\n    .replace(/<p>(<h[1-6]>.*?<\\/h[1-6]>)<\\/p>/g, '$1') // Remove <p> around headers\n    .replace(/<p>(<ul>.*?<\\/ul>)<\\/p>/gs, '$1'); // Remove <p> around lists\n\n  return html;\n}\n\n// n8n: entry point\nreturn items.map(processItem);\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2760,
+        240
+      ],
+      "id": "b8d0f6e3-a1e9-4200-92a1-c09220cf511c",
+      "name": "Markdown to HTML"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json['URLS '] }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -180,
+        200
+      ],
+      "id": "7327c560-b009-46b2-8afb-285d44139894",
+      "name": "HTTP Request1",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1WKR9jRsejUjUxqMqzKyVmziAzZm88nS7-Ljk-O4t9aI",
+          "mode": "list",
+          "cachedResultName": "Blog post updator ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1WKR9jRsejUjUxqMqzKyVmziAzZm88nS7-Ljk-O4t9aI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1637741860,
+          "mode": "list",
+          "cachedResultName": "errors ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1WKR9jRsejUjUxqMqzKyVmziAzZm88nS7-Ljk-O4t9aI/edit#gid=1637741860"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        180,
+        440
+      ],
+      "id": "6d102e12-dd6b-42da-9e4a-4b1cb6f7b885",
+      "name": "Google Sheets3",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "oyhduPdBw1ea9W4y",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "html": "={{ $json.data }}",
+        "options": {
+          "ignore": ""
+        }
+      },
+      "type": "n8n-nodes-base.markdown",
+      "typeVersion": 1,
+      "position": [
+        240,
+        260
+      ],
+      "id": "e3778945-63a7-4a3a-8460-4111af18343b",
+      "name": "Markdown",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        2480,
+        600
+      ],
+      "id": "57613051-3f73-493a-ad63-eea6298fcf81",
+      "name": "OpenAI Chat Model4",
+      "credentials": {
+        "openAiApi": {
+          "id": "VMIZpnzkHuPAc1g5",
+          "name": "OpenAi account Mine "
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=\n# SEO Blog Post Meta Title Optimization Brief\n\n## Objective\nGenerate an SEO-friendly meta title for blog posts that succinctly summarizes the article’s content and entices users to click. The meta title must comply with specified character limits, exclude product page formatting rules, and follow industry best practices for blog content.\n{{ $json.MainArticle }}\n## Guidelines for Blog Posts\n\n### 1. Meta Title Specifications\n- **Length:**  \n  - Up to 60 characters (ideally 59–60 characters).\n- **Content Requirements:**  \n  - Must include the primary keyword within the first 30 characters.\n  - Incorporate the company name towards the end.\n  - Feature a clear call-to-action or unique value proposition.\n- **Formatting Requirements:**  \n  - Do not include labels such as \"Title:\" or any other extraneous prefixes.\n  - Avoid special characters (except for |, -, and () when necessary).\n  - Ensure natural keyword integration with no stuffing.\n\n### 2. Best Practices for Blog Posts\n- **Optimization Considerations:**  \n  - Use action verbs and, where appropriate, numbers to enhance appeal.\n  - Test for mobile display to ensure readability.\n  - Monitor CTR performance and update regularly as needed.\n  - Each meta title should be unique and reflective of the specific blog post’s content.\n- **Validation Checklist:**  \n  - Primary keyword is within the first 30 characters.  \n  - Output adheres to the blog-specific structure (no product page elements).  \n  - No labels or extraneous text (e.g., “Title:” or “Description:”).  \n  - Special characters are limited to |, -, and () only.\n\n### 3. Writing Process & Format\n- **Step-by-Step Approach:**  \n  1. **Review the Provided Data:**  \n     - Use the data given to you  above  as the basis for your meta title.\n  2. **Draft the Meta Title:**  \n     - Create a draft meta title that meets the length and formatting guidelines.\n  3. **Validate Against the Checklist:**  \n     - Ensure all criteria (length, keyword positioning, absence of labels/special characters, etc.) are met.\n- **Output Format:**  \n  - Provide the final meta title as a plain text string with no additional labels.\n\n\n## Final Deliverable\nSubmit a single, plain text meta title optimized for a blog post that meets all the guidelines above. Ensure that your output:\n- Is within 60 characters.\n- Contains the primary keyword early on.\n- Does not include unnecessary labels.\n- Is unique and compelling for a blog post audience.\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        2460,
+        420
+      ],
+      "id": "c941a80e-a32b-489d-bb26-8ca819c4d006",
+      "name": "Meta Title Rewrtier"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get data from the Entity Extractor Agent node\nconst data = $input.all().map(item => {\n  return {\n    json: {\n      entityExtractedText: item.json.output // Rename 'output' to 'entityExtractedText'\n    },\n    pairedItem: 0\n  };\n});\n\nreturn data;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        980,
+        0
+      ],
+      "id": "7f6e96d7-93f3-426d-b44f-99d049d9eefe",
+      "name": "entityExtractedText"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Rename 'output' to 'productSummariser'\nconst data = $input.all().map(item => {\n  return {\n    json: {\n      productSummariser: item.json.output\n    },\n    pairedItem: 0\n  };\n});\n\nreturn data;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        960,
+        360
+      ],
+      "id": "fcd564ca-cde9-4d7d-868e-0d30a2ad0875",
+      "name": "productSummariser"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Rename 'output' to 'dataResearchText'\nconst data = $input.all().map(item => {\n  return {\n    json: {\n      dataResearchText: item.json.output\n    },\n    pairedItem: 0\n  };\n});\n\nreturn data;\n\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        960,
+        200
+      ],
+      "id": "beecfccf-a2de-4236-8b26-ad36432e0bae",
+      "name": "dataResearchText"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=### 🛠️ SEO Blog Post Rewrite and Optimization Prompt (Layered Structured Format)\n\n---\n\n### 🔹 Background:\nYou are rewriting an underperforming blog post to rebuild and optimize it for SEO and engagement, while **preserving the original content structure**.\n\nUse the provided fields:\n\n- **Content Presets:**\n  - {{ $('Edit Fields').item.json.persona }}\n  - {{ $('Edit Fields').item.json['content style '] }}\n  - {{ $('Edit Fields').item.json['tone '] }}\n  - {{ $('Edit Fields').item.json.audience }}\n  - {{ $('Edit Fields').item.json.complexityLevel }}\n  - {{ $('Edit Fields').item.json['technical detail '] }}\n\n- **Title Tag:**  \n  - {{ $('Merge').item.json.metaTitle }}\n\n- **Meta Description:**  \n  - {{ $('Merge').item.json.metaDescription }}\n\n- **H1 Header:**  \n  - {{ $('Merge').item.json.h1Heading }}\n\n- **H2 Headers:**  \n  - {{ $('Merge').item.json.h2Headings }}\n\n- **Keyword Data:**  \n  - {{ $('Merge').item.json.entityExtractedText }}\n\n- **Factual Data:**  \n  - {{ $('Merge').item.json.dataResearchText }}\n\n- **Original Content Summary:**  \n  - {{ $('Merge').item.json.productSummariser }}\n\n---\n\n### 🔹 Task Overview:\n\nUsing all the above inputs, generate an **SEO-optimized blog outline** that includes:\n\n1. H1 Title\n2. Working Title\n3. 7–9 H2 Sections, each structured with:\n   - H2 Heading\n   - Writing Context (keywords/entities to integrate)\n   - Content Facts (expandable bullet points for full paragraphs)\n\n---\n\n### 🔹 Step-by-Step Instructions:\n\n---\n\n#### 1. H1 Title:\n- Use the provided `h1Heading`.\n- If missing, insert `[MISSING DATA]`.\n\n---\n\n#### 2. Working Title:\n- Generate a new, SEO-optimized working title that supports the content goal.\n\n---\n\n#### 3. Generate 7–9 H2 Sections:\n\nFor each H2:\n\n- **Create the H2 Heading**:\n  - Use `h2Headings` and `Keyword Data` to create the heading.\n  - Include the main/salient keyword or entity early in the heading text.\n\n- **Provide the Writing Context**:\n  - **LSI Keywords:** List 3 from [Keyword Data].\n  - **Long-Tail Keywords:** List at least 3 relevant long-tail phrases.\n  - **Related Entities:** List 3–4 connected semantic entities.\n  - These are to be **woven naturally** into the expanded writing later.\n\n- **Provide the Content Facts**:\n  - Bullet out **7–8 factual points** drawn strictly from [Factual Data].\n  - These bullet points must be **expanded into full paragraphs** during content writing.\n  - **No synthesis or invention allowed** — facts only.\n\n---\n\n### 🔹 Output Formatting:\n\n**For each H2 Section, follow this template:**\n\n```markdown\n## [H2 Heading Here]\n\n### Writing Context\n- **LSI Keywords:** keyword1, keyword2, keyword3\n- **Long-Tail Keywords:** phrase1, phrase2, phrase3\n- **Related Entities:** entity1, entity2, entity3, entity4\n\n### Content Facts\n- Fact point 1\n- Fact point 2\n- Fact point 3\n- Fact point 4\n- Fact point 5\n- Fact point 6\n- Fact point 7\n- Fact point 8\n```\n\n---\n\n### 🔹 Critical Behavior Rules:\n\n- **Preserve Structure:** Follow exactly the given layered structure (Heading ➔ Context ➔ Facts).\n- **Strict Data Use:** Only use provided inputs — no invention.\n- **Natural Keyword Integration:** Later writing will weave LSI, long-tail keywords, and entities smoothly into full paragraphs.\n- **Expand Facts Only:** Each bullet point must later be developed into paragraph content.\n- **Fallback Behavior:** If any input is missing, insert `[MISSING DATA]`.\n\n---\n\n### 🔹 Important Reminders:\n\n- Fully review provided data before generating outputs.\n- Ensure exactly 7–9 fully built H2 sections.\n- Use clear Markdown headers (`##` for H2s) and bullet formatting.\n- No code blocks, no explanations, no extra comments — **output plain Markdown only**.\n\n---\n\n# 🛠 End of Prompt\n",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "Output must be in Markdown \n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        1520,
+        160
+      ],
+      "id": "646d0b48-b2f6-4685-8ace-ffce6ff044a7",
+      "name": "Article structure prompt"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Rename 'output' to 'dataResearchText'\nconst data = $input.all().map(item => {\n  return {\n    json: {\n      ArticleOutline: item.json.output\n    },\n    pairedItem: 0\n  };\n});\n\nreturn data;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1900,
+        160
+      ],
+      "id": "c5732ba5-2658-4724-a9d0-52edf95ecaab",
+      "name": "Artcicle Strcuture"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are analyzing a blog page for SEO optimization purposes. The extracted data is: Title: {{ $json.metaTitle }}, H1 Heading: {{ $json.h1Heading }}, H2 Headings: {{ $json.h2Headings }}.\n\nPlease perform the following tasks:\n\n1. Core Topic & Keyword Identification:\n    1.1 Identify the primary topic.\n    1.2 List the 3 most important core keywords.\n\n2. Entity and Semantic Analysis:\n    2.1 List 10 important aspects of the main entity/topic.\n    2.2 List 10 salient entities (important nouns).\n    2.3 List 5 synonyms for the primary topic.\n    2.4 List 5 antonyms (if applicable).\n    2.5 Identify 2 holonyms (broader categories).\n\n3. SEO Keyword Extraction:\n    3.1 Extract 10 salient keywords (main single-word or short keywords).\n    3.2 Extract 10 salient long-tail keywords (multi-word keywords).\n    3.3 Extract 5 LSI (Latent Semantic Indexing) keywords (conceptually related terms).\n    3.4 Extract 2 semantically related topics (distinct but closely linked topics).\n\n4. Content Gap and Search Intent Analysis:\n    4.1 Suggest 3 potential content gaps (missing subtopics or angles).\n    4.2 Classify the search intent (Informational, Transactional, Navigational, or Commercial Investigation).\n\n5. User Behavior and Content Strategy:\n    5.1 List 5 likely user questions based on the topic.\n    5.2 Suggest 3 related article topics for internal linking.\n    5.3 Summarize the tone of the content (e.g., Formal, Friendly, Professional).\n    5.4 Describe the target audience (e.g., Beginners, Experts, Business Owners).\n\nOutput Formatting:\n- Group responses under each task number and title (e.g., \"1. Core Topic & Keyword Identification\").\n- Use numbered lists or bullet points within each section for clarity.\n- Be concise, SEO-focused, and prioritize relevance for blog content optimization.\n\n\n\n\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        560,
+        0
+      ],
+      "id": "ee55f058-5e9d-4e05-b5d4-b62517a29967",
+      "name": "Blog Entitiy Extractor Agent"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=# 🛠️ Full Article Expansion Prompt — V2.2 (Production + Statistic)\n\n---\n\n### 🔹 Background\nExpand the provided structured outline into a complete, SEO-optimized [Article Type].\n\nInputs:\n- **Main Keyword:** {{ $('Merge').item.json.metaTitle }}\n- **Title:** [Insert Title]\n- **Persona:** {{ $('Edit Fields').item.json.persona }}\n- **Style:** {{ $('Edit Fields').item.json['content style '] }}\n- **Tone:** {{ $('Edit Fields').item.json['tone '] }}\n- **Audience:** {{ $('Edit Fields').item.json.audience }}\n- **Complexity:** {{ $('Edit Fields').item.json.complexityLevel }}\n- **Technical Detail:** {{ $('Edit Fields').item.json['technical detail '] }}\n- **Outline JSON:**  \n```json\n{{ $json.ArticleOutline }}\n```\nIf any input is missing, proceed without it.\n\n---\n\n### 🔹 Instructions\n\n**1. Header Structure:**\n- Start the article with the **Title** as an **H1 heading** (`# Title`).\n- Begin immediately with an introductory paragraph (≥100 words) **without labeling it \"Introduction.\"**\n- Use **H2 (##)** for all body sub-section headings based on the provided outline.\n- Use **H2 (##)** for the Conclusion heading.\n\n---\n\n**2. Article Body Expansion:**\n- Expand the Content Facts under each H2 into flowing, detailed paragraphs.\n- **Naturally integrate** the LSI Keywords, Long-Tail Keywords, and Related Entities into the paragraph content.\n\n---\n\n**3. Mandatory Surprising Statistic:**\n- Insert **exactly one surprising statistic or data point** inside the body sections.\n- Preferably place it inside the **\"Benefits of Vaping CBD\"** or **\"CBD Vape Juice vs Other Forms of CBD\"** section.\n- The statistic must be **factual, plausible, and contextually natural**.\n- Example format:  \n  > \"Studies suggest vaping CBD achieves 34–56% bioavailability compared to only 10–20% for edibles.\"\n\n---\n\n**4. Interactive Element:**\n- Insert **one simple HTML table** at the most logical place to illustrate comparison or data, using your own example data.\n- No external links.\n\n---\n\n### 🔹 Style & Writing Goals\n\n- Write in clear, formatted text, **not HTML code blocks**.\n- Follow Hemingway principles: clarity, strength, conciseness.\n- Apply Elements of Style: precision and directness.\n- Use semantic triples, precise hyponyms, named entities.\n- Use innovative paragraph transitions (avoid basic transitional adverbs).\n- Maintain logical and thematic flow.\n- No mention of instructions, syntax, or styles in the article.\n\n---\n\n# ✅ End of Prompt\n",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": ""
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        1820,
+        560
+      ],
+      "id": "0715fc5f-9136-4af9-b68f-ab78c4b6b555",
+      "name": "Article Rewriter"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=\n# SEO Blog Post Meta Description Optimization Brief\n\n## Objective\nGenerate an SEO-friendly meta description for a blog post that succinctly summarizes the post’s content and entices users to click. The meta description should comply with a character limit of up to 159 characters, adhere to specific guidelines, and avoid product page formatting rules and prohibited words.\n{{ $json.MainArticle }}\n## Guidelines for Blog Posts\n\n### 1. Meta Description Specifications\n- **Length:**  \n  - Up to 159 characters (ideally within the range of 159-160 characters).\n- **Content Requirements:**  \n  - Must include the primary keyword within the first 30 characters.\n  - Incorporate a clear call-to-action and a unique value proposition relevant to the blog post.\n- **Formatting Requirements:**  \n  - Do not include any introductory labels such as “Description:” or “Discover.”\n  - Avoid prohibited words: **Transform, Elevate, Enhance, ultimate**.\n  - Ensure natural keyword integration without stuffing.\n  - Special characters are restricted to |, -, and () only.\n\n### 2. Best Practices for Blog Posts\n- **Optimization Considerations:**  \n  - Use action verbs and numbers when relevant to increase appeal.\n  - Test for mobile display to ensure proper readability.\n  - Monitor CTR performance and update the meta description regularly.\n  - Each meta description should be unique and tailored to the specific blog post content.\n- **Validation Checklist:**  \n  - Primary keyword is placed within the first 30 characters.\n  - Adheres to the blog-specific structure with no product page elements.\n  - Excludes any labels or extraneous text.\n  - Contains only permitted special characters.\n\n### 3. Writing Process & Format\n- **Step-by-Step Approach:**  \n  1. **Review the Provided Data:**  \n     - Base your meta description on the data given in the data above.\n  2. **Draft the Meta Description:**  \n     - Create a draft that meets the length, keyword, and formatting guidelines.\n  3. **Validate Against the Checklist:**  \n     - Confirm that all criteria (length, keyword positioning, avoidance of prohibited words, etc.) are met.\n- **Output Format:**  \n  - Provide the final meta description as a plain text string without any labels or extra formatting.\n\n## Final Deliverable\nSubmit a single, plain text meta description optimized for a blog post that meets all the guidelines above. Ensure that your output:\n- Is within 159 characters.\n- Contains the primary keyword early on.\n- Does not include any unnecessary labels or prohibited words.\n- Is unique, compelling, and optimized for click-through performance.\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        2460,
+        580
+      ],
+      "id": "fb5a8757-5c7b-4057-b539-3614929c67cb",
+      "name": "Meta Description Writer"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=# Prompt for Summarizing and Analyzing Scraped Blog Content\n\nPlease analyze the following scraped blog text:\n\n**Instructions:**\n- Summarize the main points clearly (max 5–6 sentences).\n- Identify:\n  - **Target Audience:** Who is this article written for?\n  - **Article Type:** (e.g., How-To, Listicle, Opinion Piece, Review, etc.)\n  - **Strengths:** What does the current article do well?\n  - **Weaknesses:** What important things are missing?\n  - **Overall Sentiment:** Positive, Negative, or Neutral\n  - **Niche/Category:** Best-fit category (e.g., Home Improvement, Personal Finance, Pet Care, etc.)\n  - **What I Would Change:** Specific improvements or opportunities for the rebuild.\n\n**Rules:**\n- Focus tightly on the *main topic*.\n- Be concise and actionable.\n- Use **clear headings** and **bullet points** for each section.\n- Output must be either:\n  - Structured **Markdown**, or\n  - Clean **JSON** if specified elsewhere.\n\nHere is the blog text to analyze:\n\n{{ $json.data }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        580,
+        380
+      ],
+      "id": "08228b7f-6f66-4ed8-9307-59ffd1232691",
+      "name": "Blog Post Summariser"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1840,
+        800
+      ],
+      "id": "777b67fd-87ff-4df9-9c13-da2797017cb8",
+      "name": "OpenAI Chat Model2",
+      "credentials": {
+        "openAiApi": {
+          "id": "VMIZpnzkHuPAc1g5",
+          "name": "OpenAi account Mine "
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1400,
+        340
+      ],
+      "id": "325d3afd-9b65-4875-8eaa-427dbd891c2c",
+      "name": "OpenAI Chat Model6",
+      "credentials": {
+        "openAiApi": {
+          "id": "VMIZpnzkHuPAc1g5",
+          "name": "OpenAi account Mine "
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Based off the data below create one of the following for this article \nHtml 5 inforgraphic with inline CSS\nor \nHTML 5 interacative table with inline CSS \n\n{{ $json.MainArticle }}\n\n\n#rules \n- only use HTML no orher code \n- use the colours suggested in the sytem prompt \n- do not overly complicate it \n- use clear defined HTML so that the output is well structured for SEO\n-  Try to integrate the main and slaient entites and keywords into the output",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        2460,
+        800
+      ],
+      "id": "190919a8-7f87-43a0-a014-cb81fc1afd19",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get data from the Entity Extractor Agent node\nconst data = $input.all().map(item => {\n  return {\n    json: {\n      HTMLInfographicOrTable: item.json.output // Rename 'output' to 'entityExtractedText'\n    },\n    pairedItem: 0\n  };\n});\n\nreturn data;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2800,
+        800
+      ],
+      "id": "0e7d6a9b-9594-498d-a8f2-522c10e16a89",
+      "name": "HTML Infographic or Table"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.MainArticle }}\n\nFor this article create the following:\nThe full detailed prompt that will help  me create an detailed and Accurate imagage for the main article image \n2 Full detailed prompt for a further 2 images that can be added to the article \nlook at the subheaders and then base the prompts from those to ensure that the images align with the content \n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        2460,
+        1080
+      ],
+      "id": "8853c620-61c2-4585-a8ef-3affe7dae1cd",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        2340,
+        1160
+      ],
+      "id": "269ed377-042f-4b7a-a739-4af155ee50d5",
+      "name": "OpenAI Chat Model7",
+      "credentials": {
+        "openAiApi": {
+          "id": "VMIZpnzkHuPAc1g5",
+          "name": "OpenAi account Mine "
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get data from the Entity Extractor Agent node\nconst data = $input.all().map(item => {\n  return {\n    json: {\n      ImagePrompts: item.json.output // Rename 'output' to 'entityExtractedText'\n    },\n    pairedItem: 0\n  };\n});\n\nreturn data;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2820,
+        1100
+      ],
+      "id": "45af60a9-d47c-42cc-9cb9-f41f5cb48d7f",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e67ef023-8a1e-4bb5-838d-f327027f9645",
+              "name": "persona",
+              "value": "SEO Content Strategist",
+              "type": "string"
+            },
+            {
+              "id": "14073d1e-75a3-436b-b517-7e1853d665cf",
+              "name": "content style ",
+              "value": "Educational and Friendly",
+              "type": "string"
+            },
+            {
+              "id": "4f8c5327-0c60-4c53-9bc4-f24d45b6a389",
+              "name": "tone ",
+              "value": "Professional but Approachable",
+              "type": "string"
+            },
+            {
+              "id": "4c2e1c1f-56fa-455a-b8bc-e202f23357a3",
+              "name": "audience",
+              "value": "Small Business Owners",
+              "type": "string"
+            },
+            {
+              "id": "d6d77d45-a01f-4731-97a1-12957a978e9c",
+              "name": "complexityLevel",
+              "value": "intermediate",
+              "type": "string"
+            },
+            {
+              "id": "6fb2c65a-e6d2-4bdc-aa3f-bc340afec79d",
+              "name": "technical detail ",
+              "value": "basic level",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1420,
+        -60
+      ],
+      "id": "9817d442-a8f9-4b92-9dc0-236d34080ffd",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        2480,
+        980
+      ],
+      "id": "05ae4c0e-50d1-4e52-9723-00c1a4544204",
+      "name": "OpenAI Chat Model8",
+      "credentials": {
+        "openAiApi": {
+          "id": "VMIZpnzkHuPAc1g5",
+          "name": "OpenAi account Mine "
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => {\n  return {\n    json: {\n      MainArticle : item.json.output\n    },\n    pairedItem: 0\n  };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2180,
+        620
+      ],
+      "id": "e521a4ca-a903-40f4-bb2c-ddf93dfaa468",
+      "name": "MainArticle"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "SplitInBatches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SplitInBatches": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Meta Extractor": {
+      "main": [
+        [
+          {
+            "node": "Blog Entitiy Extractor Agent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Data Research Agent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Blog Entitiy Extractor Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Blog Post Summariser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Data Research Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data Research Agent": {
+      "main": [
+        [
+          {
+            "node": "dataResearchText",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets1": {
+      "main": [
+        [
+          {
+            "node": "SplitInBatches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Meta Title Rewrtier",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Meta Description Extractor": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Meta Title Extractor": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Markdown Formatting": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Markdown to HTML": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 4
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Markdown",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Meta Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Google Sheets3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Markdown": {
+      "main": [
+        [
+          {
+            "node": "Blog Post Summariser",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Meta Description Writer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Meta Title Rewrtier": {
+      "main": [
+        [
+          {
+            "node": "Meta Title Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "entityExtractedText": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "productSummariser": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "dataResearchText": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Article structure prompt": {
+      "main": [
+        [
+          {
+            "node": "Artcicle Strcuture",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Artcicle Strcuture": {
+      "main": [
+        [
+          {
+            "node": "Article Rewriter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Blog Entitiy Extractor Agent": {
+      "main": [
+        [
+          {
+            "node": "entityExtractedText",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Article Rewriter": {
+      "main": [
+        [
+          {
+            "node": "Markdown Formatting",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Markdown to HTML",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "MainArticle",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Meta Description Writer": {
+      "main": [
+        [
+          {
+            "node": "Meta Description Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Blog Post Summariser": {
+      "main": [
+        [
+          {
+            "node": "productSummariser",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Article Rewriter",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model6": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Article structure prompt",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "HTML Infographic or Table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML Infographic or Table": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 5
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model7": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 6
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Article structure prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model8": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MainArticle": {
+      "main": [
+        [
+          {
+            "node": "Meta Title Rewrtier",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Meta Description Writer",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ecf8f5a367a053b31a916eab7d52753441c1335d50da9cd94c91e52b4e43163f"
+  }
+}

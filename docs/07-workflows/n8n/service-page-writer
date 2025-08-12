@@ -1,0 +1,560 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        280,
+        620
+      ],
+      "id": "07d90a84-de5e-4544-ba67-80f7f832d415",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "VMIZpnzkHuPAc1g5",
+          "name": "OpenAi account Mine "
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        1140
+      ],
+      "id": "28c6f3b8-5fae-44b2-90e6-b6c8af74210c",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1Wbkq3ZPLTfCejRWGR58IRJYpZkTg4omYyBU3LuKTSS8",
+          "mode": "list",
+          "cachedResultName": "Service page creator ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Wbkq3ZPLTfCejRWGR58IRJYpZkTg4omYyBU3LuKTSS8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Fields to fill out ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Wbkq3ZPLTfCejRWGR58IRJYpZkTg4omYyBU3LuKTSS8/edit#gid=0"
+        },
+        "options": {
+          "outputFormatting": {
+            "values": {
+              "general": "UNFORMATTED_VALUE",
+              "date": "FORMATTED_STRING"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -60,
+        280
+      ],
+      "id": "7895881b-07c8-4e1d-971c-e0ca4ae44aa2",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "oyhduPdBw1ea9W4y",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        120,
+        280
+      ],
+      "id": "808d1314-3b18-4d70-a56e-523849f41094",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1Wbkq3ZPLTfCejRWGR58IRJYpZkTg4omYyBU3LuKTSS8",
+          "mode": "list",
+          "cachedResultName": "Service page creator ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Wbkq3ZPLTfCejRWGR58IRJYpZkTg4omYyBU3LuKTSS8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 162822664,
+          "mode": "list",
+          "cachedResultName": "Service page output ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Wbkq3ZPLTfCejRWGR58IRJYpZkTg4omYyBU3LuKTSS8/edit#gid=162822664"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Service page Markdown ": "={{ $json.ServicePageRewriter }}",
+            "Oringinal Service Keyword ": "={{ $('Loop Over Items').item.json.service }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Oringinal Service Keyword ",
+              "displayName": "Oringinal Service Keyword ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Service page Markdown ",
+              "displayName": "Service page Markdown ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        740,
+        1140
+      ],
+      "id": "f88f82e5-870b-416e-b71c-d5ff4e162472",
+      "name": "Google Sheets1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "oyhduPdBw1ea9W4y",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        300,
+        400
+      ],
+      "id": "aad83306-d58a-40c6-a1ee-46b0f9f19e3d",
+      "name": "OpenAI Chat Model2",
+      "credentials": {
+        "openAiApi": {
+          "id": "VMIZpnzkHuPAc1g5",
+          "name": "OpenAi account Mine "
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get data from the Entity Extractor Agent node\nconst data = $input.all().map(item => {\n  return {\n    json: {\n      entityExtractedText: item.json.output // Rename 'output' to 'entityExtractedText'\n    },\n    pairedItem: 0\n  };\n});\n\nreturn data;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        740,
+        300
+      ],
+      "id": "d53b5fc4-f432-4332-aa79-f1dffd8304de",
+      "name": "entityExtractedText"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=YOu are an SEO agent specialised in understading the entities and keywords associated with a service page. \n\nFor this Service based Keyword \n\n{{ $json.service }}\nPlease perform the following tasks:\n\n1. Core Topic & Keyword Identification:\n    1.1 Identify the primary topic.\n    1.2 List the 3 most important core keywords.\n\n2. Entity and Semantic Analysis:\n    2.1 List 10 important aspects of the main entity/topic.\n    2.2 List 10 salient entities (important nouns).\n    2.3 List 5 synonyms for the primary topic.\n    2.4 List 5 antonyms (if applicable).\n    2.5 Identify 2 holonyms (broader categories).\n\n3. SEO Keyword Extraction:\n    3.1 Extract 10 salient keywords (main single-word or short keywords).\n    3.2 Extract 10 salient long-tail keywords (multi-word keywords).\n    3.3 Extract 5 LSI (Latent Semantic Indexing) keywords (conceptually related terms).\n    3.4 Extract 2 semantically related topics (distinct but closely linked topics).\n\n4. Content Gap and Search Intent Analysis:\n    4.1 Suggest 3 potential content gaps (missing subtopics or angles).\n    4.2 Classify the search intent (Informational, Transactional, Navigational, or Commercial Investigation).\n\n5. User Behavior and Content Strategy:\n    5.1 List 5 likely user questions based on the topic.\n    5.2 Suggest 3 related article topics for internal linking.\n    5.3 Summarize the tone of the content (e.g., Formal, Friendly, Professional).\n    5.4 Describe the target audience (e.g., Beginners, Experts, Business Owners).\n\nOutput Formatting:\n- Group responses under each task number and title (e.g., \"1. Core Topic & Keyword Identification\").\n- Use numbered lists or bullet points within each section for clarity.\n- Be concise, SEO-focused, and prioritize relevance for blog content optimization. ",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        400,
+        300
+      ],
+      "id": "dd659f41-8a8d-4c4d-9454-5450c641e608",
+      "name": "Service page entities"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        260,
+        880
+      ],
+      "id": "9cd85b7d-000f-499c-b4af-a545f9d4c5ae",
+      "name": "OpenAI Chat Model3",
+      "credentials": {
+        "openAiApi": {
+          "id": "VMIZpnzkHuPAc1g5",
+          "name": "OpenAi account Mine "
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={\n  \"pageType\": \"Service Page\",\n  \"businessName\": \"<businessName>={{ $('Loop Over Items').item.json.businessName }}\",\n  \"businessType\": \"<businessType>={{ $('Loop Over Items').item.json.businessType }}\",\n  \"service\": \"<service>={{ $('Loop Over Items').item.json.service }}\",\n  \"location\": \"<location>={{ $('Loop Over Items').item.json.location }}\",\n  \"targetAudience\": \"<targetAudience>={{ $('Loop Over Items').item.json.targetAudience }}\",\n  \"primaryKeywords\": \"<primaryKeywords>={{ $('Loop Over Items').item.json.primaryKeywords }}\",\n  \"secondaryKeywords\": \"<secondaryKeywords>={{ $('Loop Over Items').item.json.secondaryKeywords }}\",\n  \"toneProfile\": \"<toneProfile>={{ $('Loop Over Items').item.json.toneProfile || 'approachableExpert' }}\",\n\n  \"namedEntities\": \"<namedEntities>={{ $json.entityExtractedText || $('Loop Over Items').item.json.toolsUsed }}\",\n  \"toolsUsed\": \"<toolsUsed>={{ $('Loop Over Items').item.json.toolsUsed }}\",\n  \"servicesIncluded\": \"<servicesIncluded>={{ $('Loop Over Items').item.json.servicesIncluded }}\",\n  \"processSteps\": \"<processSteps>={{ $('Loop Over Items').item.json.processSteps }}\",\n\n  \"usp\": \"<usp>={{ $('Google Sheets').item.json.usp }}\",\n  \"benefitsOfUSP\": \"<benefitsOfUSP>={{ $('Google Sheets').item.json.benefitsOfUSP || 'You’ll see measurable uplifts in organic traffic, higher search rankings, and stronger local visibility without exceeding your budget.' }}\",\n\n  \"ethos\": \"<ethos>={{ $('Google Sheets').item.json.ethos }}\",\n  \"writerBackground\": \"<writerBackground>=Fusion Group brings deep expertise in digital marketing, blending evidence-based tactics, real-world success stories, and a long-term partnership mindset.\",\n\n  \"context\": \"Craft a focused, SEO-optimized service page for <service> aimed at <targetAudience> in <location>. Weave in all dynamic fields—keywords, named entities, tools, processes, USP, benefits, ethos, and writer background—into a cohesive narrative. Adjust the prose to the <toneProfile> tone, favor flowing paragraphs over dense lists, and deploy fallback messaging where values are missing.\",\n\n  \"requirements\": [\n    \"Naturally integrate primary & secondary keywords across headings and body copy.\",\n    \"Embed named entities (tools, platforms) and semantic variations of <service> within narrative paragraphs.\",\n    \"Convert any checklist-style content into short, story-like paragraphs with clear transitions.\",\n    \"Showcase deliverables (<servicesIncluded>) and process (<processSteps>) as part of the client journey story.\",\n    \"Highlight USP and articulate concrete benefits from <benefitsOfUSP> in persuasive yet concise language.\",\n    \"Incorporate writer background and ethos to build trust and authority.\",\n    \"Adhere to Hemingway’s rules: simple, active voice with varied sentence lengths and contractions.\",\n    \"Follow humanWritingRules for subheader length, emotional hooks, pronoun use, and engagement nudges.\",\n    \"Avoid forbidden terms and unexplained acronyms; if any field is blank, pivot to customization, quality, and experience messaging.\"\n  ],\n\n  \"forbiddenTerms\": [\n    \"innovative solutions\",\n    \"cutting-edge\",\n    \"leading provider in the industry\",\n    \"leveraging synergy\",\n    \"disruptive\",\n    \"next-generation platform\",\n    \"AI-driven\",\n    \"revolutionary\",\n    \"state-of-the-art\",\n    \"best-in-class\",\n    \"unparalleled\",\n    \"one-stop shop for all your needs\",\n    \"paradigm shift\",\n    \"world-class\",\n    \"mission-critical\",\n    \"leveraging\",\n    \"game changer\",\n    \"technical jargon or unexplained acronyms\"\n  ],\n\n  \"structure\": {\n    \"h1\": \"<service>\",\n    \"subheading\": \"Helping <targetAudience> in <location> Achieve Real Results with <service>\"\n  },\n\n  \"h2Structures\": [\n    {\n      \"title\": \"Why You Need Strategic SEO to Grow\",\n      \"content\": \"Open with a relatable challenge faced by <targetAudience> in <location>, then show how <service> overcomes it with budget-friendly tactics.\"\n    },\n    {\n      \"title\": \"What Our SEO Delivers\",\n      \"content\": \"Narrate the mix of <servicesIncluded>, weaving in <toolsUsed> and related entities, and emphasize the outcomes clients see.\"\n    },\n    {\n      \"title\": \"Our Proven SEO Process\",\n      \"content\": \"Describe each step from <processSteps> in a benefit-driven, story-like flow that guides readers from audit to results.\"\n    },\n    {\n      \"title\": \"Why Clients Trust <businessName>\",\n      \"content\": \"Weave in <writerBackground>, <ethos>, and <namedEntities> to underscore our expertise, ethics, and long-term commitment.\"\n    },\n    {\n      \"title\": \"Real Growth Stories\",\n      \"content\": \"Share a concise case-story highlighting traffic lifts, ranking gains, or ROI to bring <benefitsOfUSP> to life.\"\n    },\n    {\n      \"title\": \"FAQs About Affordable SEO\",\n      \"content\": [\n        \"What are affordable SEO services for small businesses?\",\n        \"How can SEO benefit my small business in Newbury, Berkshire?\",\n        \"What does an SEO audit involve and why is it important?\",\n        \"How do I choose the right SEO service package for my budget?\",\n        \"What free or budget-friendly SEO tools should I start with?\"\n      ]\n    },\n    {\n      \"title\": \"Ready to Boost Your Visibility?\",\n      \"content\": \"Close with an inviting call-to-action that speaks directly to the reader’s goals and next steps.\"\n    }\n  ],\n\n  \"specialInclusions\": [\n    \"Seamlessly mention <namedEntities> and <toolsUsed> within narrative context instead of as lists.\",\n    \"If any dynamic field is empty, pivot to messaging around our deep expertise, customization, and commitment to results.\"\n  ],\n\n  \"toneAndStyle\": {\n    \"tone\": \"approachableExpert\",\n    \"guidelines\": [\n      \"Use clear, relatable phrasing with a professional undertone.\",\n      \"Employ active voice and contractions for conversational flow.\",\n      \"Vary sentence lengths; open sections with emotional or outcome-focused hooks.\",\n      \"Balance narrative paragraphs with occasional brief pull-out sentences for emphasis.\"\n    ]\n  },\n\n  \"humanWritingRules\": [\n    \"Subheaders under 10 words; emotionally engaging and outcome-driven.\",\n    \"Avoid repeating the full service name in subheaders; focus on benefits and action words.\",\n    \"Vary sentence length; use second-person (“you/your”) and inclusive team phrasing (“we/our”).\",\n    \"Open sections with hooks: relatable problem, emotional trigger, or clear outcome.\",\n    \"Blend persuasive nudges like “imagine,” “what if,” or “picture this.”\",\n    \"Integrate keywords naturally; sound like a trusted advisor, not an AI bot.\",\n    \"Balance brief paragraphs with occasional sentence pull-outs for emphasis.\"\n  ],\n\n  \"outputExpectation\": \"Generate a fully realized, SEO-optimized service page that reads like a trusted advisor’s narrative, integrates all inputs, respects humanWritingRules, and drives readers to take action.\"\n}\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        400,
+        520
+      ],
+      "id": "30efaf31-b4be-4fda-9d4f-04727a84aeb6",
+      "name": "Service page Writer"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        240,
+        1080
+      ],
+      "id": "60f778ee-a048-4329-9b03-795f5ce7ec50",
+      "name": "OpenAI Chat Model4",
+      "credentials": {
+        "openAiApi": {
+          "id": "VMIZpnzkHuPAc1g5",
+          "name": "OpenAi account Mine "
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a **senior content evaluator** responsible for reviewing AI-generated service pages to ensure they meet best-practice standards across SEO, user experience, and visual design. Your task is to **analyze the service page content enclosed in triple backticks** and return a clear list of **what needs improvement**, based on the criteria below.\n{{ $json.output }}\n---\n\n## 📋 Assessment Criteria\n\nEvaluate the content against the **Essential Elements of a Great Service Page**, including:\n\n### 🔍 SEO Standards\n- Clear keyword focus (in H1, meta title, description, URL, body)\n- Descriptive, benefit-led long-form content\n- Structured headings (H1 > H2 > H3)\n- Internal linking presence\n- Use of Schema markup\n- Strong meta tags\n- Page speed/mobile-friendliness (mention if not assessable)\n\n### 👤 User Experience\n- Strong opening: What is the service and why it matters\n- Clear breakdown of what's included\n- Trust signals (e.g., testimonials, case studies)\n- Easy-to-scan layout (bullets, headings)\n- Effective CTAs\n- FAQs for objections\n- Contact methods are accessible\n\n### 🎨 Visual/Structural Presentation\n- Visual engagement (images, icons, layout)\n- Consistent branding tone\n- Clean structure with white space\n- Responsive design noted\n\n### make sure the page has also integrated these into the content \n- Service type {{ $('Loop Over Items').item.json.service }}\nTarget Audience: {{ $('Loop Over Items').item.json.targetAudience }}\nPrimary Keywords:{{ $('Loop Over Items').item.json.primaryKeywords }}\nSecondary Keywords: {{ $('Loop Over Items').item.json.secondaryKeywords }}\nIncluded Services:{{ $('Loop Over Items').item.json.servicesIncluded }}\nCOmpany Ethos: {{ $('Loop Over Items').item.json.ethos }}\nUSP: {{ $('Loop Over Items').item.json.usp }}\nBenfits of the USP:{{ $('Loop Over Items').item.json.benefitsOfUSP }}\nTools used: {{ $('Loop Over Items').item.json.toolsUsed }}\nMy Process when you work with me: {{ $('Loop Over Items').item.json.processSteps }}\n---\n\n## 🛠️ Your Task\n\n1. List what **is missing, unclear, or weak** in the service page.\n2. **Group feedback** by SEO, UX, and Visual categories.\n3. Be concise but specific—each issue must be **actionable**.\n4. Do **not** rewrite the page—**only assess** it.\n\n\n\n### 🔎 Example Output\n\n**SEO Feedback**\n- Missing internal links to other services or blog posts.\n- H1 tag does not include the target keyword.\n- No indication of meta description content.\n\n**UX Feedback**\n- The introduction is generic; lacks clear value proposition.\n- No testimonials or trust markers shown.\n- CTAs are weak or missing entirely.\n\n**Visual/Design Feedback**\n- Needs visual separators between sections.\n- No mention of responsive layout or interactive elements.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        380,
+        760
+      ],
+      "id": "97562d07-8d60-400a-94b0-d38a29f33684",
+      "name": "Service Page Feed Back"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=\n---\n\n### ✍️ **Prompt 2: Rewrite Prompt (for Second n8n Step)**\n\n\nYou are a **senior service page copywriter**. Your job is to **rewrite the provided service page** using both the original draft and the structured feedback provided. The goal is to produce a high-converting, SEO-optimized, visually scannable service page.\n\n---\n## First Draft content:  {{ $('ServicePageWriter:').item.json.ServicePageWriter }}\n## Feed Back on the first draft: {{ $json.ServicePageFeedback }}\n\n## 🛠️ Your Instructions:\n\n1. Use the **original content** and **review feedback** provided.\n2. Follow the **Essential Elements of a Great Service Page** standard.\n3. Incorporate strong keyword usage, engaging benefit-led structure, trust signals, visual structure, and clear CTAs.\n4. Use structured headings (H1 > H2 > H3), bullet points, and section breaks.\n5. The tone should be professional, helpful, and conversion-focused.\n\n---\n\n### 🎯 Output Format\n\n- Return the **rewritten service page** in Markdown format.\n- Include H1, H2s, and bullets where appropriate.\n- Do **not** include your thought process—just output the page.\n\n---\n\n### 💾 Input Format\nspcifically for Services Pages \n| ❌ Don't Use                 | ✅ Use Instead / Notes                               |\n| --------------------------- | --------------------------------------------------- |\n| Cutting-edge solution       | Describe the actual features or benefits            |\n| Leveraging AI               | Say what the AI does (e.g., \"automates scheduling\") |\n| State-of-the-art            | Be specific about what sets it apart                |\n| Harnessing the power of     | Describe the function directly                      |\n| Disruptive technology       | Explain the real-world impact                       |\n| Revolutionize your workflow | Use plain language about improvements               |\n| Scalable and robust         | Clarify what that means in context                  |\n| Seamless integration        | Explain how the integration works                   |\n| Optimize performance        | Tell what’s improved and how                        |\n| AI-powered insights         | Be specific: \"Predictive analytics show\\...\"        |\n| Future-proof                | Avoid unless you define what that entails           |\n| Game-changing               | Replace with measurable benefits                    |\n\nGeneral \n| ❌ Don't Use                        | ✅ Use Instead                     |\n| ---------------------------------- | --------------------------------- |\n| In conclusion                      | So, to wrap things up             |\n| It is important to note that       | Keep in mind                      |\n| This article will explore          | Let’s dive into                   |\n| As previously mentioned            | Like we said earlier              |\n| There are many factors to consider | A few key things matter           |\n| In today’s world                   | These days                        |\n| In today’s society                 | These days                        |\n| A variety of                       | A mix of                          |\n| Moreover                           | Also                              |\n| Furthermore                        | Plus                              |\n| In addition                        | On top of that                    |\n| It is widely acknowledged that     | Most people agree                 |\n| According to recent studies        | Research shows                    |\n| Significantly                      | What really stands out            |\n| Notably                            | What’s worth noting               |\n| Undoubtedly                        | No question                       |\n| Clearly                            | It’s obvious                      |\n| Repetition of thesis               | Rephrase or summarize differently |\n| Based on my experience             | People often say                  |\n| Experts agree that                 | Some experts think                |\n| This is the best approach          | One smart option is               |\n| Let’s take a closer look at        | Let’s break this down             |\n| Throughout history                 | Over time                         |\n\n\n**Original Draft**\n{{ $('ServicePageWriter:').item.json.ServicePageWriter }}\n\n**Feedback**\n{{ $json.ServicePageFeedback }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        380,
+        980
+      ],
+      "id": "3966dfda-c85d-4596-b926-c864f7180167",
+      "name": "Service Page rewriter"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get data from the Entity Extractor Agent node\nconst data = $input.all().map(item => {\n  return {\n    json: {\n      ServicePageWriter: item.json.output // Rename 'output' to 'entityExtractedText'\n    },\n    pairedItem: 0\n  };\n});\n\nreturn data;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        740,
+        520
+      ],
+      "id": "04bd2d7d-16bc-4bee-ae16-f22a1b6acd75",
+      "name": "ServicePageWriter:"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get data from the Entity Extractor Agent node\nconst data = $input.all().map(item => {\n  return {\n    json: {\n      ServicePageFeedback: item.json.output // Rename 'output' to 'entityExtractedText'\n    },\n    pairedItem: 0\n  };\n});\n\nreturn data;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        740,
+        760
+      ],
+      "id": "bf6cd28b-6390-47c4-b75e-1280d13892e6",
+      "name": "ServicePageFeedback"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get data from the Entity Extractor Agent node\nconst data = $input.all().map(item => {\n  return {\n    json: {\n      ServicePageRewriter: item.json.output // Rename 'output' to 'entityExtractedText'\n    },\n    pairedItem: 0\n  };\n});\n\nreturn data;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        740,
+        980
+      ],
+      "id": "92637468-d61a-4d21-93c5-5940580790fa",
+      "name": "ServicePageRewriter"
+    },
+    {
+      "parameters": {
+        "content": "               ## Starter ",
+        "height": 1360,
+        "width": 380,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -160,
+        60
+      ],
+      "typeVersion": 1,
+      "id": "19fe150e-bee5-4fcf-b0c3-df22d6743c8d",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "                                  ##  Service Page Creation ",
+        "height": 1360,
+        "width": 760,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        240,
+        60
+      ],
+      "typeVersion": 1,
+      "id": "2d19f053-8bb9-4398-8c59-8fa5fcc3ee95",
+      "name": "Sticky Note1"
+    }
+  ],
+  "connections": {
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Service page Writer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Service page entities",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Service page entities",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "entityExtractedText": {
+      "main": [
+        [
+          {
+            "node": "Service page Writer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Service page entities": {
+      "main": [
+        [
+          {
+            "node": "entityExtractedText",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Service Page Feed Back",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Service page Writer": {
+      "main": [
+        [
+          {
+            "node": "ServicePageWriter:",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Service Page rewriter",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Service Page Feed Back": {
+      "main": [
+        [
+          {
+            "node": "ServicePageFeedback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Service Page rewriter": {
+      "main": [
+        [
+          {
+            "node": "ServicePageRewriter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ServicePageWriter:": {
+      "main": [
+        [
+          {
+            "node": "Service Page Feed Back",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ServicePageFeedback": {
+      "main": [
+        [
+          {
+            "node": "Service Page rewriter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ServicePageRewriter": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ecf8f5a367a053b31a916eab7d52753441c1335d50da9cd94c91e52b4e43163f"
+  }
+}

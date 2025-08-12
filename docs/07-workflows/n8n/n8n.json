@@ -1,0 +1,989 @@
+{
+    "nodes": [
+      {
+        "parameters": {},
+        "type": "n8n-nodes-base.manualTrigger",
+        "typeVersion": 1,
+        "position": [
+          -860,
+          -80
+        ],
+        "id": "a4451d17-e955-481e-b35e-9a9c41840d5b",
+        "name": "When clicking ‘Test workflow’"
+      },
+      {
+        "parameters": {
+          "documentId": {
+            "__rl": true,
+            "value": "1EkNLyK0giO_KOm70UPz4JZE26HGYYNTbx9JeAaK2klw",
+            "mode": "list",
+            "cachedResultName": "product URLS ",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1EkNLyK0giO_KOm70UPz4JZE26HGYYNTbx9JeAaK2klw/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": "gid=0",
+            "mode": "list",
+            "cachedResultName": "URLS",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1EkNLyK0giO_KOm70UPz4JZE26HGYYNTbx9JeAaK2klw/edit#gid=0"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.5,
+        "position": [
+          -720,
+          -80
+        ],
+        "id": "a95b490d-b021-48ce-9e48-64cbfacad12b",
+        "name": "Google Sheets",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "oyhduPdBw1ea9W4y",
+            "name": "Google Sheets account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "batchSize": 1,
+          "options": {
+            "reset": false
+          }
+        },
+        "name": "SplitInBatches",
+        "type": "n8n-nodes-base.splitInBatches",
+        "position": [
+          -580,
+          -80
+        ],
+        "typeVersion": 1,
+        "id": "ac24c4a5-089d-4b2c-be9a-5d37e640617a"
+      },
+      {
+        "parameters": {
+          "jsCode": "// Helper function to extract specific tags using regex\nconst extractTagContent = (html, tag) => {\n  const regex = new RegExp(`<${tag}[^>]*>(.*?)</${tag}>`, 'gi');\n  const matches = html.match(regex) || [];\n  return matches.map(match => match.replace(/<[^>]*>/g, '').trim());\n};\n\n// Helper function to extract meta tags\nconst extractMetaContent = (html, metaName) => {\n  const regex = new RegExp(`<meta name=[\"']${metaName}[\"'] content=[\"'](.*?)[\"']`, 'i');\n  const match = html.match(regex);\n  return match ? match[1] : 'Not Found';\n};\n\n// Main processing function\nconst processItem = (item) => {\n  const rawHtml = item.json.data; // Access raw HTML from \"data\" key\n  \n  if (!rawHtml) {\n    throw new Error('No HTML content found in input data.');\n  }\n\n  return {\n    metaTitle: extractTagContent(rawHtml, 'title')[0] || 'Not Found',\n    metaDescription: extractMetaContent(rawHtml, 'description'),\n    h1Heading: extractTagContent(rawHtml, 'h1')[0] || 'Not Found',\n    h2Headings: extractTagContent(rawHtml, 'h2'),\n    h3Headings: extractTagContent(rawHtml, 'h3'),\n  };\n};\n\n// Process all items\nreturn items.map(processItem);\n"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          -220,
+          -260
+        ],
+        "id": "2bc4f12e-580c-4259-8b53-17a0fea4dc01",
+        "name": "Meta Extractor",
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "model": {
+            "__rl": true,
+            "mode": "list",
+            "value": "gpt-4o-mini"
+          },
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1.2,
+        "position": [
+          -40,
+          -200
+        ],
+        "id": "f9ab2f3e-c36f-4ca1-9cf7-0f872b6c420f",
+        "name": "OpenAI Chat Model",
+        "credentials": {
+          "openAiApi": {
+            "id": "VMIZpnzkHuPAc1g5",
+            "name": "OpenAi account Mine "
+          }
+        }
+      },
+      {
+        "parameters": {
+          "model": {
+            "__rl": true,
+            "mode": "list",
+            "value": "gpt-4o-mini"
+          },
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1.2,
+        "position": [
+          -40,
+          160
+        ],
+        "id": "f76d4a56-048f-47e7-9876-8e330f87c1b4",
+        "name": "OpenAI Chat Model1",
+        "credentials": {
+          "openAiApi": {
+            "id": "VMIZpnzkHuPAc1g5",
+            "name": "OpenAi account Mine "
+          }
+        }
+      },
+      {
+        "parameters": {
+          "model": "perplexity/sonar",
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+        "typeVersion": 1,
+        "position": [
+          -40,
+          -20
+        ],
+        "id": "6959202d-342e-4e61-b24e-ef7fcf7cf291",
+        "name": "OpenRouter Chat Model",
+        "credentials": {
+          "openRouterApi": {
+            "id": "Fpdp3uXrN0vUevHD",
+            "name": "OpenRouter account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "=You are an **e‑commerce SEO specialist**.  \nUse this data below \nProduct URL:{{ $('Google Sheets').item.json['URL '] }}`\n**Title:** `{{ $json.metaTitle }}`  \n**H1 heading:** `{{ $json.h1Heading }}`  \n**H2 headings:** `{{ $json.h2Headings }}`  \n**H£ headings:** `{{ $json.h3Headings }}`  \nPerform the following and **return a single JSON** with these keys:\n\n```json\n{\n  \"aspects\": [...],\n  \"entities\": [...],\n  \"synonyms\": [...],\n  \"antonyms\": [...],\n  \"holonymy\": [...],\n  \"keywords\": [...],\n  \"longTailKeywords\": [...],\n  \"lsiKeywords\": [...],\n  \"relatedTopics\": [...],\n  \"approach\": \"Brief summary of your method\"\n}\naspects (10): product features or attributes\n\nentities (10): salient nouns\n\nsynonyms (5): similar terms to the core concept\n\nantonyms (5): opposites of the core concept\n\nholonymy (2): wholes that include this product\n\nkeywords (10): high‑value single keywords\n\nlongTailKeywords (10): e‑commerce‑style long tails\n\nlsiKeywords (5): latent‑semantic terms\n\nrelatedTopics (2): semantically related subjects\n\nKeep your output concise and exact.\n\n\n\n",
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 1.7,
+        "position": [
+          100,
+          -260
+        ],
+        "id": "25d9bb25-0898-4bf1-b348-c64378a414a9",
+        "name": "Entitiy Extractor Agent"
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "=### Role  \nYou are an experienced SEO specialist.\n\n### Input Data  \n- Meta Title: `{{ $json.metaTitle }}`  \n- Meta Description: `{{ $json.metaDescription }}`  \n- Product Title (H1): `{{ $json.h1Heading }}`  \n- Subheaders (H2): `{{ $json.h2Headings }}\n- Subheaders  (H1): `{{ $json.h3Headings[0] }}\n### Tasks  \n1. **Technical Analysis**  \n   - Extract the most frequent terms and explain your reasoning.  \n   - Estimate semantic similarity between the inputs and common search patterns (e.g., via term co‑occurrence) and describe your method.  \n   - Identify key factual data points.  \n   - Generate a term‑frequency matrix.  \n\n2. **Intent Analysis**  \n   - Determine the likely user intent and search context.  \n   - Analyze semantic relationships and common query patterns.  \n   - Explain your reasoning for each conclusion.  \n\n### Output Requirements  \nReturn a single JSON object with the following structure:\n\n```json\n{\n  \"technicalData\": [\n    { \"term\": \"string\", \"score\": number },\n    ...\n  ],\n  \"intentAnalysis\": \"string\",\n  \"relatedTerms\": [\"string\", ...]\n}\n",
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 1.7,
+        "position": [
+          100,
+          -80
+        ],
+        "id": "c6c61db0-d62e-454c-84f2-b0987efb203c",
+        "name": "Data Research Agent",
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "=# Product Description Analysis Prompt\n\nYou are a **Product Marketing Analyst**. Given a block of text describing a product, provide a structured analysis **in JSON format**.\n\n---\n\n## Input  \n\n{{ $json.data }}\n\n\n---\n\n## Instructions  \n\n1. **Main Summary**  \n   - Write **2–3 sentences** that capture the essence of the product and its marketing angle.\n\n2. **Key Entities**  \n   - Extract all brand names, product features, materials, and other notable entities as an **array of strings**.\n\n3. **Sentiment Analysis**  \n   - Determine the overall sentiment: `\"positive\"`, `\"negative\"`, or `\"neutral\"`.  \n   - If the sentiment is ambiguous, choose `\"neutral\"` and set `\"uncertainty\": true`.\n\n4. **Niche / Category**  \n   - Identify the specific niche or category to which this product belongs.\n\n5. **Constraints**  \n   - **Do not** mention any prices.  \n   - Focus strictly on the main topic of the product description.\n\n---\n\n## Output Format  \n\nReturn **only** the following **valid JSON** object:\n\n\n{\n  \"main_summary\": \"Your 2–3 sentence summary here.\",\n  \"key_entities\": [ \"Entity 1\", \"Entity 2\", \"...\"],\n  \"sentiment\": \"positive|negative|neutral\",\n  \"uncertainty\": false,\n  \"niche\": \"Product niche or category here\"\n}\n\n\nEnsure the JSON includes all five fields exactly as specified, with no additional properties.\n",
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 1.7,
+        "position": [
+          100,
+          100
+        ],
+        "id": "1ab59d47-34c7-41c7-accc-849d35578e55",
+        "name": "Product Summariser"
+      },
+      {
+        "parameters": {
+          "model": {
+            "__rl": true,
+            "value": "gpt-4o",
+            "mode": "list",
+            "cachedResultName": "gpt-4o"
+          },
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1.2,
+        "position": [
+          600,
+          -80
+        ],
+        "id": "068bbed5-1011-452a-9abc-1d2421ada077",
+        "name": "OpenAI Chat Model2",
+        "credentials": {
+          "openAiApi": {
+            "id": "VMIZpnzkHuPAc1g5",
+            "name": "OpenAi account Mine "
+          }
+        }
+      },
+      {
+        "parameters": {
+          "mode": "combine",
+          "combineBy": "combineByPosition",
+          "numberInputs": 5,
+          "options": {
+            "includeUnpaired": true
+          }
+        },
+        "type": "n8n-nodes-base.merge",
+        "typeVersion": 3,
+        "position": [
+          1440,
+          -240
+        ],
+        "id": "ddbf3eaa-e04c-4ced-9653-53a679794ea8",
+        "name": "Merge1",
+        "alwaysOutputData": true,
+        "retryOnFail": true
+      },
+      {
+        "parameters": {
+          "operation": "append",
+          "documentId": {
+            "__rl": true,
+            "value": "1EkNLyK0giO_KOm70UPz4JZE26HGYYNTbx9JeAaK2klw",
+            "mode": "list",
+            "cachedResultName": "product URLS ",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1EkNLyK0giO_KOm70UPz4JZE26HGYYNTbx9JeAaK2klw/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": 631530475,
+            "mode": "list",
+            "cachedResultName": "Product output ",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1EkNLyK0giO_KOm70UPz4JZE26HGYYNTbx9JeAaK2klw/edit#gid=631530475"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "Product URL ": "={{ $json[\"URL \"] }}",
+              "Title Tag": "={{ $json.title }}",
+              "Description ": "={{ $json.description }}",
+              "Rewritten Product -  Markdown ": "={{ $json.output }}",
+              "Rewritten Content HTML ": "={{ $json.html }}"
+            },
+            "matchingColumns": [],
+            "schema": [
+              {
+                "id": "Product URL ",
+                "displayName": "Product URL ",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Title Tag",
+                "displayName": "Title Tag",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Description ",
+                "displayName": "Description ",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Rewritten Product -  Markdown ",
+                "displayName": "Rewritten Product -  Markdown ",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Rewritten Content HTML ",
+                "displayName": "Rewritten Content HTML ",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {
+            "cellFormat": "RAW"
+          }
+        },
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.5,
+        "position": [
+          1440,
+          60
+        ],
+        "id": "b4cc4aff-6916-426f-806d-5489cc9f4aa9",
+        "name": "Google Sheets1",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "oyhduPdBw1ea9W4y",
+            "name": "Google Sheets account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "mode": "combine",
+          "combineBy": "combineByPosition",
+          "numberInputs": 3,
+          "options": {}
+        },
+        "type": "n8n-nodes-base.merge",
+        "typeVersion": 3,
+        "position": [
+          600,
+          -260
+        ],
+        "id": "b5ba0c49-edc7-4072-98dd-a40be8c2c876",
+        "name": "Merge"
+      },
+      {
+        "parameters": {
+          "model": {
+            "__rl": true,
+            "mode": "list",
+            "value": "gpt-4o-mini"
+          },
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1.2,
+        "position": [
+          600,
+          40
+        ],
+        "id": "b2bb5258-f8a7-421e-a902-dfe262e234c4",
+        "name": "OpenAI Chat Model3",
+        "credentials": {
+          "openAiApi": {
+            "id": "VMIZpnzkHuPAc1g5",
+            "name": "OpenAi account Mine "
+          }
+        }
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "=## OUTPUT MUST BE IN HUMAN READABLE FORMATED MARKDOWN \nYou are tasked with creating detailed optimised long product description content that strictly adheres to the following guidelines:\nusing this content \n{{ $json.entityExtractedText }}\n{{ $json.dataResearchText }}\n{{ $json.productSummariser }}\n  CONTENT RULES:\n  ## keep it beween 750 -1000 words so that the content is concise and engaging.\n  - **Highlight Clear Benefits**\n    - Communicate key benefits and value propositions immediately.\n    - Focus on how the product solves problems or enhances the customer's life.\n  \n  - **Keep It Scannable**\n    - Use concise, easily readable subheaders to break up text.\n    - Ensure subheaders are under 70 characters for quick scanning.\n  \n  - **Relate to Main Keyword**\n    - Make each subheader directly relate to the primary keyword for SEO.\n    - Start subheaders with the main keyword or a related term.\n  \n  - **Emphasize Main Product Aspects**\n    - Highlight the main product features and unique selling points.\n    - Ensure the main topic is clear to both readers and search engines.\n  \n  - **Organize Logically**\n    - Arrange subheaders in a natural sequence that matches user intent.\n    - Guide readers from high-level benefits to specific details.\n  \n  - **Use Action Words**\n    - Incorporate dynamic verbs and power words to engage readers.\n    - Encourage actions that drive conversions.\n  \n  - **Highlight Key Features**\n    - Emphasize the most important and unique product features.\n    - Showcase specifications that differentiate your product.\n  \n  - **Optimize for SEO**\n    - Integrate relevant keywords naturally without sacrificing readability.\n    - Enhance search visibility while maintaining clarity.\n  \n  - **Create Curiosity**\n    - Write intriguing subheaders that spark interest and encourage exploration.\n    - Use questions or statements that promise valuable information.\n  \n  - **Maintain Consistency**\n    - Keep subheaders uniform in length, style, and formatting.\n    - Align the tone and style with your brand's voice.\n  \n  - **Support the Main Headline**\n    - Ensure subheaders complement and expand on the main headline.\n    - Create a cohesive story about the product's value.\n\n ## CONTENT STRUCTURE REQUIREMENTS:\nThe Main header must be h1 (#)\n## Rules for the h1 header \n- Identify the Product Benefit: Focus on the main value or solution the product offers.\n-Incorporate SEO Keywords: Seamlessly blend in relevant keywords for optimization.\n-Keep It Concise: Ensure the H1 is  punchy, and impactful.\n- Drive Conversion: Aim for a headline that not only informs but also entices action.\n- Use Natural, Conversational Tone: Write as if you're speaking directly to the customer.\n\n\n  1. All subheaders must be h2 (##).\n  2. Start with a clear and concise 1-sentence introduction that incorporates the main keyword.\n  3. Create 6-7 bullet points for the overview section (bold entities and keywords).\n  4. Main content section must include:\n      - [medium to long-length paragraphs of about 200-250 words each with semantically relevant subheaders to the main product header]. Keep focused on the product.\n      - keep it beween 750 -1000 words so that the content is concise and engaging.\n      - Product details (features, specifications, functions, size, color, materials).\n      - FOCUS ONLY ON THE PRODUCT: Do not include customer support, reviews, customer concerns, resolutions, customer satisfaction, common concerns, or selling propositions.\n      - All measurements in mm, kg, cm.\n      - Unique selling propositions.\n      - DO NOT ADD A CONCLUSION - ALWAYS ADD A CALL TO ACTION INSTEAD BUT DONT CALL IT A CALL TO ACTION.\n      - Technical details as bullet points.\n      - Features explained with dualities.\n      - Bold entities and keywords.\n##Never use these words \n## - Ultimate \n## - Experience\n## - Introduction \n## - Elevate \n## - Discover\n## - Introducing \n## - Enhance \n\n  Each section MUST be thoroughly detailed with multiple paragraphs (150-200 words each).\n  The total content MUST reach a minimum of 2000 words while maintaining quality and relevance.\n  Every aspect must be comprehensively covered with specific examples and detailed explanations.\n\n  WRITING STYLE REQUIREMENTS:\n  - Use semantic triple syntax.\n  - Follow Hemingway's Rules.\n  - Use conceptual context but don't mention it.\n  - Apply Elements of Style by William Strunk Jr. and E.B. White.\n  - Use hyponyms of entities (nouns).\n  - Improve the lexical semantics of the above.\n  - Use Named Entities.\n  - Use the salient Entities.\n  - DO NOT start any sentence with \"WELCOME\".\n  - DO NOT mention any of these requirements directly in the content.\n  - Use Markdown syntax for all formatting.\n  - Create engaging, SEO-optimized content.\n  - Follow company guidelines exactly.\n  - Implement all content rules.\n  - Ensure factual accuracy based on research data.\n\n### OUTPUT MUST BE IN HUMAN READABLE FORMATED MARKDOWN \n## keep it beween 750 -1000 words so that the content is concise and engaging.",
+          "hasOutputParser": true,
+          "options": {
+            "systemMessage": "# OUTPUT STYLE RULES\n- ## TONE: informal\n- ## TECHNICAL OUTPUT - HOW TECHNICAL SHOULD THE CONTENT BE:  very technical \n- ## LENGTH: follow guideline\n- ## IDEAL CUSTOMER PERSONA: Do not mention the details specifically\n\n- **Profile:** Sarah Davies, 40, independent heritage‑restoration contractor in the UK.  \n- **Motivation:** Needs a general‑purpose, fast‑setting natural hydraulic lime for cavity brickwork, blockwork and stonework projects citeturn2search1.  \n- **Goals:** Deliver breathable, durable mortars compliant with EN 459‑1, suitable for both new builds and historic restorations citeturn2search8.  \n- **Challenges:** Avoids cement‑based mortars that trap moisture and crack; requires moderate hydraulic strength (3.5 MPa) for stability without sacrificing flexibility .  \n- **Behaviors:** Researches sustainability credentials, downloads technical datasheets and CE/EPD certifications, and sources materials from specialist suppliers like Ecomerchant.\n- ## OTHER REQUESTS - Mention the brand \"Ecomerchant\" in the content \n"
+          }
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 1.7,
+        "position": [
+          780,
+          -260
+        ],
+        "id": "18893856-b1b1-46f5-8fd3-58090e01bc5e",
+        "name": "Product rewrtier"
+      },
+      {
+        "parameters": {
+          "jsCode": "return items.map(item => {\n  return {\n    json: {\n      description: item.json.output\n    },\n    pairedItem: 0\n  };\n});\n"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1200,
+          120
+        ],
+        "id": "c217d7c4-8fec-4661-9b26-bc424bbdeff9",
+        "name": "Meta Description Extractor"
+      },
+      {
+        "parameters": {
+          "jsCode": "return items.map(item => {\n  return {\n    json: {\n      title: item.json.output\n    },\n    pairedItem: 0\n  };\n});\n"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1200,
+          -20
+        ],
+        "id": "e1fc0de1-654b-49ab-ba36-067605c3e40d",
+        "name": "Meta Title Extractor"
+      },
+      {
+        "parameters": {
+          "jsCode": "// Process product descriptions and format them to clean, structured markdown\nfor (const item of $input.all()) {\n  let productText = item[\"Final Product Page\"];\n  \n  if (productText && typeof productText === 'string') {\n    // Step 1: If this is a JSON string, parse it\n    if (productText.startsWith('\"') && productText.endsWith('\"')) {\n      try {\n        productText = JSON.parse(productText);\n      } catch (e) {\n        // Manual cleanup if JSON parsing fails\n        productText = productText\n          .substring(1, productText.length - 1)\n          .replace(/\\\\n/g, \"\\n\")\n          .replace(/\\\\\"/g, '\"')\n          .replace(/\\\\\\\\/g, \"\\\\\");\n      }\n    }\n    \n    // Step 2: Create a new field with HTML representation for display\n    // This will allow n8n to show it properly instead of the escaped version\n    const htmlOutput = productText\n      .replace(/\\n/g, \"<br>\")                 // Convert newlines to HTML breaks\n      .replace(/## (.*?)$/gm, \"<h2>$1</h2>\")  // Format h2 headings\n      .replace(/### (.*?)$/gm, \"<h3>$1</h3>\") // Format h3 headings\n      .replace(/\\*\\*(.*?)\\*\\*/g, \"<strong>$1</strong>\") // Bold text\n      .replace(/- (.*?)$/gm, \"• $1<br>\")      // Format bullet points\n      .replace(/  /g, \"&nbsp;&nbsp;\");        // Preserve spaces\n      \n    // Add a new field for the HTML view\n    item[\"Product Page HTML\"] = htmlOutput;\n    \n    // Also keep a clean markdown version with proper newlines\n    item[\"Clean Markdown\"] = productText;\n    \n    // Step 3: Update the original field with the cleaned text \n    // (this will still show as JSON in n8n's interface)\n    item[\"Final Product Page\"] = productText;\n  }\n}\n\nreturn $input.all();"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1200,
+          -260
+        ],
+        "id": "58df26d9-4dd4-4d67-9ab6-54ab69b1d999",
+        "name": "Markdown Formatting"
+      },
+      {
+        "parameters": {
+          "jsCode": "// For n8n: Extract only the HTML content from the JSON\nfunction processItem(item) {\n  try {\n    // If the item already has htmlContent field, use it directly\n    if (item.json.htmlContent) {\n      item.json = { html: item.json.htmlContent };\n    } \n    // Convert markdown from 'output' field\n    else if (item.json.output) {\n      const markdownContent = item.json.output;\n      item.json = { html: markdownToHtml(markdownContent) };\n    } \n    else {\n      item.json = { error: \"No htmlContent or output field found\" };\n    }\n  } catch (error) {\n    item.json = { error: `Error processing HTML: ${error.message}` };\n  }\n  return item;\n}\n\n// Markdown to HTML conversion function\nfunction markdownToHtml(markdown) {\n  if (!markdown) return '';\n\n  // 1. Convert Markdown headers (H1 to H6)\n  let html = markdown\n    .replace(/^###### (.*?)$/gm, '<h6>$1</h6>')\n    .replace(/^##### (.*?)$/gm, '<h5>$1</h5>')\n    .replace(/^#### (.*?)$/gm, '<h4>$1</h4>')\n    .replace(/^### (.*?)$/gm, '<h3>$1</h3>')\n    .replace(/^## (.*?)$/gm, '<h2>$1</h2>')\n    .replace(/^# (.*?)$/gm, '<h1>$1</h1>');\n\n  // 2. Convert bold and italic markdown\n  html = html\n    .replace(/\\*\\*(.*?)\\*\\*/g, '<strong>$1</strong>') // Bold\n    .replace(/\\*(.*?)\\*/g, '<em>$1</em>');            // Italic\n\n  // 3. Handle unordered lists with support for nesting\n  const lines = html.split('\\n');\n  let processedLines = [];\n  let inList = false;\n  let previousIndentLevel = 0;\n  let listStack = [];\n\n  for (let i = 0; i < lines.length; i++) {\n    let line = lines[i];\n    const listMatch = line.match(/^(\\s*)- (.*?)$/);\n\n    if (listMatch) {\n      const [fullMatch, indent, content] = listMatch;\n      const indentLevel = Math.floor(indent.length / 2);\n\n      if (!inList) {\n        processedLines.push('<ul>');\n        listStack.push('</ul>');\n        inList = true;\n      }\n\n      if (indentLevel > previousIndentLevel) {\n        processedLines[processedLines.length - 1] = processedLines[processedLines.length - 1].replace('</li>', '');\n        processedLines.push('<ul>');\n        listStack.push('</ul></li>');\n      } else if (indentLevel < previousIndentLevel) {\n        while (previousIndentLevel > indentLevel) {\n          processedLines.push(listStack.pop());\n          previousIndentLevel--;\n        }\n      }\n\n      processedLines.push(`<li>${content}</li>`);\n      previousIndentLevel = indentLevel;\n    } else {\n      if (inList) {\n        while (listStack.length > 0) {\n          processedLines.push(listStack.pop());\n        }\n        inList = false;\n        previousIndentLevel = 0;\n      }\n      processedLines.push(line);\n    }\n  }\n\n  if (inList) {\n    while (listStack.length > 0) {\n      processedLines.push(listStack.pop());\n    }\n    inList = false;\n  }\n\n  html = processedLines.join('\\n');\n\n  // 4. Wrap remaining lines in <p> tags (paragraphs)\n  const paragraphLines = html.split('\\n');\n  let inParagraph = false;\n  let result = [];\n\n  for (let i = 0; i < paragraphLines.length; i++) {\n    let line = paragraphLines[i].trim();\n\n    if (!line) {\n      if (inParagraph) {\n        result[result.length - 1] += '</p>';\n        inParagraph = false;\n      }\n      continue;\n    }\n\n    if (line.startsWith('<')) {\n      if (inParagraph) {\n        result[result.length - 1] += '</p>';\n        inParagraph = false;\n      }\n      result.push(line);\n      continue;\n    }\n\n    if (!inParagraph) {\n      result.push('<p>' + line);\n      inParagraph = true;\n    } else {\n      result[result.length - 1] += '<br>' + line;\n    }\n  }\n\n  if (inParagraph) {\n    result[result.length - 1] += '</p>';\n  }\n\n  html = result.join('\\n');\n\n  // 5. Clean-up\n  html = html\n    .replace(/<p><\\/p>/g, '') // Remove empty <p>\n    .replace(/<p>(<h[1-6]>.*?<\\/h[1-6]>)<\\/p>/g, '$1') // Remove <p> around headers\n    .replace(/<p>(<ul>.*?<\\/ul>)<\\/p>/gs, '$1'); // Remove <p> around lists\n\n  return html;\n}\n\n// n8n: entry point\nreturn items.map(processItem);\n"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1200,
+          -140
+        ],
+        "id": "101abc76-6ae5-44bd-bccb-42ee360e8595",
+        "name": "Markdown to HTML"
+      },
+      {
+        "parameters": {
+          "url": "={{ $json[\"URL \"] }}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          -420,
+          -80
+        ],
+        "id": "74b42ed6-a2a3-48c9-8cc2-87483c78ae3b",
+        "name": "HTTP Request1",
+        "onError": "continueErrorOutput"
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "documentId": {
+            "__rl": true,
+            "value": "1EkNLyK0giO_KOm70UPz4JZE26HGYYNTbx9JeAaK2klw",
+            "mode": "list",
+            "cachedResultName": "product URLS ",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1EkNLyK0giO_KOm70UPz4JZE26HGYYNTbx9JeAaK2klw/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": 1053389032,
+            "mode": "list",
+            "cachedResultName": "404 URLS",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1EkNLyK0giO_KOm70UPz4JZE26HGYYNTbx9JeAaK2klw/edit#gid=1053389032"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {},
+            "matchingColumns": [
+              "404 URLS "
+            ],
+            "schema": [
+              {
+                "id": "404 URLS ",
+                "displayName": "404 URLS ",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "row_number",
+                "displayName": "row_number",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "readOnly": true,
+                "removed": false
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.5,
+        "position": [
+          -220,
+          100
+        ],
+        "id": "e7847947-fc7a-46b3-b06f-00cd07fe0cf1",
+        "name": "Google Sheets3",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "oyhduPdBw1ea9W4y",
+            "name": "Google Sheets account"
+          }
+        },
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "html": "={{ $json.data }}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.markdown",
+        "typeVersion": 1,
+        "position": [
+          -220,
+          -80
+        ],
+        "id": "233088ef-04bb-4cb1-b3ca-003d01812232",
+        "name": "Markdown",
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "model": {
+            "__rl": true,
+            "mode": "list",
+            "value": "gpt-4o-mini"
+          },
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+        "typeVersion": 1.2,
+        "position": [
+          600,
+          160
+        ],
+        "id": "8d2cd53e-c490-46c5-bfb3-d987a11709d9",
+        "name": "OpenAI Chat Model4",
+        "credentials": {
+          "openAiApi": {
+            "id": "VMIZpnzkHuPAc1g5",
+            "name": "OpenAi account Mine "
+          }
+        }
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "=Use this Data below to:\n{{ $json.output }}\nGenerate an SEO-friendly meta title (up to 60 characters) that sucinctly  summarises the page’s content and entices users to click.\nplease use  these rules\n# Metadata Optimization Rules\n###DONT USE Title: in the output \n\n## Title Rules\n{INSTRUCTIONS}\nTitle:[## Max output: 59 characters !important] \n###[DO NOT ADD : Title:]\n{/INSTRUCTIONS}\n\n\n**Product Pages**\nTitle: {Brand} {Product Name} - {Key Spec/Feature} | {Category Name}\n\n\n**Character Limits**\nTitles: 59-60 characters\n\n\n**Must Include**\n- Primary keyword in first half of title\n- Company name in title (usually at end)\n- Clear call-to-action in description\n- Unique value proposition per page\n\n**Must Avoid**\n- **Title:** in the meta title output \n- **Description:** in the meta description out put \n- Special characters (except | - and ())\n- Generic descriptions\n- Truncated content\n\n**Best Practices**\n- Use action verbs\n- Include numbers when relevant\n- Test mobile display\n- Monitor CTR performance\n- Regular content updates\n- Natural keyword placement\n- Unique metadata per page variant\n\n\n**[Validation Checklist]**  \n☑ Primary keyword in first 30 characters  \n☑ Natural keyword integration (no stuffing)  \n☑ Page-type-specific structure applied  \n☑ Zero special characters except | - ()  ",
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 1.7,
+        "position": [
+          800,
+          -80
+        ],
+        "id": "cb3fef3d-6c1b-44c7-96e0-0af4e760dead",
+        "name": "Meta Title Rewrtier"
+      },
+      {
+        "parameters": {
+          "jsCode": "// Get data from the Entity Extractor Agent node\nconst data = $input.all().map(item => {\n  return {\n    json: {\n      entityExtractedText: item.json.output // Rename 'output' to 'entityExtractedText'\n    },\n    pairedItem: 0\n  };\n});\n\nreturn data;\n"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          420,
+          -260
+        ],
+        "id": "14feebf2-0a09-4626-9710-009ad469ef08",
+        "name": "entityExtractedText"
+      },
+      {
+        "parameters": {
+          "jsCode": "// Rename 'output' to 'productSummariser'\nconst data = $input.all().map(item => {\n  return {\n    json: {\n      productSummariser: item.json.output\n    },\n    pairedItem: 0\n  };\n});\n\nreturn data;\n"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          420,
+          100
+        ],
+        "id": "3b93d9dc-ad96-42a5-9258-4488bd899a0a",
+        "name": "productSummariser"
+      },
+      {
+        "parameters": {
+          "jsCode": "// Rename 'output' to 'dataResearchText'\nconst data = $input.all().map(item => {\n  return {\n    json: {\n      dataResearchText: item.json.output\n    },\n    pairedItem: 0\n  };\n});\n\nreturn data;\n"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          420,
+          -80
+        ],
+        "id": "3f2186aa-d928-4f22-979d-06ae7b338530",
+        "name": "dataResearchText"
+      },
+      {
+        "parameters": {
+          "promptType": "define",
+          "text": "=Use this Data below to:\n{{ $json.output }}\nUse this Data below to:\n{{ $json.output }}\nGenerate an SEO-friendly meta Description (up to 159 characters) that sucinctly  summarises the page’s content and entices users to click.\nplease use  these rules\n# Metadata Optimization Rules\n###DONT USE Descrption: in the output \n### DO NOT USE THE FOLLOWING WORDS\n- Transform \n- Elevate\n- Enhance \n- ultimate \n\n## Meta Description Rules\n{INSTRUCTIONS}\nDescription:[## Max output:159 characters !important]\n###[DO NOT ADD : Description,Discover]\n{/INSTRUCTIONS}\n\n\n**Product Pages**\nTitle: {Brand} {Product Name} - {Key Spec/Feature} | {Category Name}\nDescription: {Product Name} + {Key Features} + {Primary Benefit} + {Purchase Incentive Or Call To Action}\n\n\n**Character Limits**\nTitles: 135-159 characters\nDescriptions: 159-160 characters\n\n**Must Include**\n- Primary keyword in first half of title\n- Company name in title (usually at end)\n- Clear call-to-action in description\n- Unique value proposition per page\n\n**Must Avoid**\n- **Title:** in the meta title output \n- **Description:** in the meta description out put \n- Special characters (except | - and ())\n- Generic descriptions\n- Truncated content\n\n**Best Practices**\n- Use action verbs\n- Include numbers when relevant\n- Test mobile display\n- Monitor CTR performance\n- Regular content updates\n- Natural keyword placement\n- Unique metadata per page variant\n\n\n**[Validation Checklist]**  \n☑ Primary keyword in first 30 characters  \n☑ Natural keyword integration (no stuffing)  \n☑ Page-type-specific structure applied  \n☑ Zero special characters except | - ()  ",
+          "options": {}
+        },
+        "type": "@n8n/n8n-nodes-langchain.agent",
+        "typeVersion": 1.7,
+        "position": [
+          800,
+          100
+        ],
+        "id": "6b8b79d7-1de9-4d14-9a42-73766b01e29f",
+        "name": "Meta Description Rewriter"
+      }
+    ],
+    "connections": {
+      "When clicking ‘Test workflow’": {
+        "main": [
+          [
+            {
+              "node": "Google Sheets",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Google Sheets": {
+        "main": [
+          [
+            {
+              "node": "SplitInBatches",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "SplitInBatches": {
+        "main": [
+          [
+            {
+              "node": "Merge1",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "HTTP Request1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Meta Extractor": {
+        "main": [
+          [
+            {
+              "node": "Entitiy Extractor Agent",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Data Research Agent",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Entitiy Extractor Agent",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model1": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Product Summariser",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenRouter Chat Model": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Data Research Agent",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Entitiy Extractor Agent": {
+        "main": [
+          [
+            {
+              "node": "entityExtractedText",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Data Research Agent": {
+        "main": [
+          [
+            {
+              "node": "dataResearchText",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Product Summariser": {
+        "main": [
+          [
+            {
+              "node": "productSummariser",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model2": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Product rewrtier",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Merge1": {
+        "main": [
+          [
+            {
+              "node": "Google Sheets1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Google Sheets1": {
+        "main": [
+          [
+            {
+              "node": "SplitInBatches",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Merge": {
+        "main": [
+          [
+            {
+              "node": "Product rewrtier",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model3": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Meta Title Rewrtier",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Product rewrtier": {
+        "main": [
+          [
+            {
+              "node": "Markdown Formatting",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Markdown to HTML",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Meta Title Rewrtier",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Meta Description Rewriter",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Meta Description Extractor": {
+        "main": [
+          [
+            {
+              "node": "Merge1",
+              "type": "main",
+              "index": 2
+            }
+          ]
+        ]
+      },
+      "Meta Title Extractor": {
+        "main": [
+          [
+            {
+              "node": "Merge1",
+              "type": "main",
+              "index": 1
+            }
+          ]
+        ]
+      },
+      "Markdown Formatting": {
+        "main": [
+          [
+            {
+              "node": "Merge1",
+              "type": "main",
+              "index": 3
+            }
+          ]
+        ]
+      },
+      "Markdown to HTML": {
+        "main": [
+          [
+            {
+              "node": "Merge1",
+              "type": "main",
+              "index": 4
+            }
+          ]
+        ]
+      },
+      "HTTP Request1": {
+        "main": [
+          [
+            {
+              "node": "Meta Extractor",
+              "type": "main",
+              "index": 0
+            },
+            {
+              "node": "Markdown",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Google Sheets3",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Markdown": {
+        "main": [
+          [
+            {
+              "node": "Product Summariser",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "OpenAI Chat Model4": {
+        "ai_languageModel": [
+          [
+            {
+              "node": "Meta Description Rewriter",
+              "type": "ai_languageModel",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Meta Title Rewrtier": {
+        "main": [
+          [
+            {
+              "node": "Meta Title Extractor",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "entityExtractedText": {
+        "main": [
+          [
+            {
+              "node": "Merge",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "productSummariser": {
+        "main": [
+          [
+            {
+              "node": "Merge",
+              "type": "main",
+              "index": 2
+            }
+          ]
+        ]
+      },
+      "dataResearchText": {
+        "main": [
+          [
+            {
+              "node": "Merge",
+              "type": "main",
+              "index": 1
+            }
+          ]
+        ]
+      },
+      "Meta Description Rewriter": {
+        "main": [
+          [
+            {
+              "node": "Meta Description Extractor",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "pinData": {},
+    "meta": {
+      "instanceId": "ecf8f5a367a053b31a916eab7d52753441c1335d50da9cd94c91e52b4e43163f"
+    }
+  }

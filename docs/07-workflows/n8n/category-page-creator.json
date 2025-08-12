@@ -1,0 +1,823 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1540,
+        340
+      ],
+      "id": "45f32715-18d2-4cac-9fc0-4194b8270438",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "11RDYUKQus8twmPz39DfRlFCj3roS-0S9bYA9bMtmzLA",
+          "mode": "list",
+          "cachedResultName": "Category Page Creator ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/11RDYUKQus8twmPz39DfRlFCj3roS-0S9bYA9bMtmzLA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Keywords",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/11RDYUKQus8twmPz39DfRlFCj3roS-0S9bYA9bMtmzLA/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -1400,
+        340
+      ],
+      "id": "55cf170b-6a9d-4751-9ead-0cde47a10262",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "oyhduPdBw1ea9W4y",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {
+          "reset": false
+        }
+      },
+      "name": "SplitInBatches",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        -1260,
+        340
+      ],
+      "typeVersion": 1,
+      "id": "b91fa6ba-5c8d-41e3-aeb3-2cc99ad46a2f"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -1040,
+        460
+      ],
+      "id": "bbf37523-47ed-485e-a75d-cbb1e674fee7",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "VMIZpnzkHuPAc1g5",
+          "name": "OpenAi account Mine "
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "perplexity/sonar",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -500,
+        480
+      ],
+      "id": "d19c97bd-dcb2-4843-9f99-198f93bf0125",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "Fpdp3uXrN0vUevHD",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are conducting structured research to support the writing of a high-conversion e-commerce **category page**.\n\n---\n\n### Article Context:\n{{ $('SplitInBatches').item.json['Category Keyword '] }}\n\nUse the keyword and context to analyze the following SERP content:\n\n---\n\n### Tasks:\n\n#### [SECTION 1] - **Main Topic & Keyword Clusters**\n- Identify the **central topic**.\n- List **top related keywords** and **keyword clusters** used across the SERP.\n\n#### [SECTION 2] - **Search Intent Analysis**\n- Classify the **dominant search intent** (informational, commercial, transactional, navigational).\n- Explain what the **user is trying to achieve** based on patterns in the SERP.\n\n#### [SECTION 3] - **20 Relevant Facts from the SERP**\n- Provide a numbered list of **concise, verifiable facts** derived from the top-ranking content.\n- Prioritize facts that highlight:\n  - Consumer needs or product preferences\n  - Feature comparisons\n  - Buying triggers\n  - Differentiating factors\n\n#### [SECTION 4] - **10 Key Article Factors**\n- List major **subtopics or themes** that are consistently addressed in top-ranking content.\n- These will shape the article structure (e.g., comparisons, buying guides, FAQs, use cases).\n\n#### [SECTION 5] - **Technical Term Analysis**\n- List key **technical terms, specs, or product descriptors** found across the SERP.\n- For each term, provide an estimated **importance score** (High, Medium, Low) based on frequency and prominence.\n\n---\n\n### ✨ Additional Buyer-Focused Insights\n\n#### [SECTION 6] - **Product Benefits & Use Cases**\n- Based on the SERP, list key **functional benefits** of the products in this category (e.g., long-lasting, ergonomic, space-saving).\n- Explain **how they’re used** and in what types of scenarios (e.g., home, travel, work).\n- Use concise bullets or short paragraphs.\n\n#### [SECTION 7] - **Target Audience & Buyer Needs**\n- Identify different **user segments or buyer personas** (e.g., students, professionals, parents, hobbyists).\n- For each, describe:\n  - The **problem or need** they have\n  - How this category **addresses** that need\n  - Any **value drivers** that matter to them (price, style, ease of use, etc.)\n\n---\n\n### Output Format:\nUse **clearly labeled sections** with these exact delimiters:\n- `#### [SECTION X] - {Section Title}`  \n- Use **Markdown format** for lists and structure\n\n---\n\nEnsure that each insight is **derived from or strongly implied by** the SERP data — avoid speculative or generic information. Output must be structured, markdown-compatible, and ready for downstream parsing in an n8n workflow.\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -460,
+        340
+      ],
+      "id": "01e97696-74fa-4a86-b35a-d9eb805e10d2",
+      "name": "Data Research Agent",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -1040,
+        760
+      ],
+      "id": "c067e51e-4a35-4587-86bc-c5c26512a034",
+      "name": "OpenAI Chat Model2",
+      "credentials": {
+        "openAiApi": {
+          "id": "VMIZpnzkHuPAc1g5",
+          "name": "OpenAi account Mine "
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "11RDYUKQus8twmPz39DfRlFCj3roS-0S9bYA9bMtmzLA",
+          "mode": "list",
+          "cachedResultName": "Category Page Creator ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/11RDYUKQus8twmPz39DfRlFCj3roS-0S9bYA9bMtmzLA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1650864677,
+          "mode": "list",
+          "cachedResultName": "Category output ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/11RDYUKQus8twmPz39DfRlFCj3roS-0S9bYA9bMtmzLA/edit#gid=1650864677"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Title Tag": "={{ $('Meta Title Extractor').item.json.title }}",
+            "Description ": "={{ $json.description }}",
+            "Rewritten Category -  Markdown ": "={{ $('Markdown Formatting').item.json.CategoryPageFinalOutput }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Title Tag",
+              "displayName": "Title Tag",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Description ",
+              "displayName": "Description ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Rewritten Category -  Markdown ",
+              "displayName": "Rewritten Category -  Markdown ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "cellFormat": "RAW"
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -200,
+        1400
+      ],
+      "id": "9777078b-9000-471b-b97a-0bb37277e51d",
+      "name": "Google Sheets1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "oyhduPdBw1ea9W4y",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -1000,
+        1360
+      ],
+      "id": "6d5d3ffe-e970-47e3-8fe9-179965832b28",
+      "name": "OpenAI Chat Model3",
+      "credentials": {
+        "openAiApi": {
+          "id": "VMIZpnzkHuPAc1g5",
+          "name": "OpenAi account Mine "
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => {\n  return {\n    json: {\n      description: item.json.output\n    },\n    pairedItem: 0\n  };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -200,
+        1180
+      ],
+      "id": "dd8443e0-9282-445d-9349-c3283e21bd47",
+      "name": "Meta Description Extractor"
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => {\n  return {\n    json: {\n      title: item.json.output\n    },\n    pairedItem: 0\n  };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -700,
+        1180
+      ],
+      "id": "e3d41ff9-c855-4bce-9797-530490c2c94d",
+      "name": "Meta Title Extractor"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Process product descriptions and format them to clean, structured markdown\nfor (const item of $input.all()) {\n  let productText = item[\"Final Product Page\"];\n  \n  if (productText && typeof productText === 'string') {\n    // Step 1: If this is a JSON string, parse it\n    if (productText.startsWith('\"') && productText.endsWith('\"')) {\n      try {\n        productText = JSON.parse(productText);\n      } catch (e) {\n        // Manual cleanup if JSON parsing fails\n        productText = productText\n          .substring(1, productText.length - 1)\n          .replace(/\\\\n/g, \"\\n\")\n          .replace(/\\\\\"/g, '\"')\n          .replace(/\\\\\\\\/g, \"\\\\\");\n      }\n    }\n    \n    // Step 2: Create a new field with HTML representation for display\n    // This will allow n8n to show it properly instead of the escaped version\n    const htmlOutput = productText\n      .replace(/\\n/g, \"<br>\")                 // Convert newlines to HTML breaks\n      .replace(/## (.*?)$/gm, \"<h2>$1</h2>\")  // Format h2 headings\n      .replace(/### (.*?)$/gm, \"<h3>$1</h3>\") // Format h3 headings\n      .replace(/\\*\\*(.*?)\\*\\*/g, \"<strong>$1</strong>\") // Bold text\n      .replace(/- (.*?)$/gm, \"• $1<br>\")      // Format bullet points\n      .replace(/  /g, \"&nbsp;&nbsp;\");        // Preserve spaces\n      \n    // Add a new field for the HTML view\n    item[\"Product Page HTML\"] = htmlOutput;\n    \n    // Also keep a clean markdown version with proper newlines\n    item[\"Clean Markdown\"] = productText;\n    \n    // Step 3: Update the original field with the cleaned text \n    // (this will still show as JSON in n8n's interface)\n    item[\"Final Product Page\"] = productText;\n  }\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -460,
+        920
+      ],
+      "id": "80c94c2d-6f23-4a91-835e-4437081aae7f",
+      "name": "Markdown Formatting"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -540,
+        1340
+      ],
+      "id": "cfec8867-41e2-4164-aad8-00cc5190ff8c",
+      "name": "OpenAI Chat Model4",
+      "credentials": {
+        "openAiApi": {
+          "id": "VMIZpnzkHuPAc1g5",
+          "name": "OpenAi account Mine "
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=\n# SEO eCommerce Category Page Meta Title Optimization Brief\n\n## Objective\n\nGenerate an SEO-friendly meta title for **eCommerce category pages** that clearly communicates the category’s purpose, includes key search terms, and encourages clicks from high-intent shoppers. The meta title must **not include the brand or store name** and must follow formatting and length guidelines aligned with category-level SEO best practices.\n\n`{{ $json.CategoryPageFinalOutput }}`\n\n---\n\n## Guidelines for Category Pages\n\n### 1. Meta Title Specifications\n\n* **Length:**\n\n  * Up to 60 characters (ideally 59–60 characters).\n* **Content Requirements:**\n\n  * Include the **primary category keyword** within the first 30 characters.\n  * **Do not include the brand or store name** anywhere in the title.\n  * Emphasize a strong value proposition (e.g., wide selection, fast delivery).\n* **Formatting Requirements:**\n\n  * Do **not** include labels like “Title:” or any prefixes.\n  * Limit special characters to |, -, and () if necessary.\n  * Integrate keywords naturally — avoid awkward phrasing or stuffing.\n\n---\n\n### 2. Best Practices for Category Pages\n\n* **Optimization Considerations:**\n\n  * Use buyer-intent terms such as “Shop,” “Explore,” or “Discover.”\n  * Highlight core shopper benefits: price, variety, quality, convenience.\n  * Avoid repetition across category pages to ensure unique titles.\n  * Check mobile SERP previews to prevent cutoff or truncation.\n\n* **Validation Checklist:**\n\n  * ✅ Primary keyword is early (within first 30 characters).\n  * ✅ No brand/store name included.\n  * ✅ Only approved punctuation is used.\n  * ✅ Title reflects commercial and navigational intent.\n\n---\n\n### 3. Writing Process & Format\n\n* **Step-by-Step Approach:**\n\n  1. **Review the Provided Data:**\n\n     * Use `{{ $('dataResearchText').item.json.dataResearchText }}` as your factual foundation.\n  2. **Draft the Meta Title:**\n\n     * Keep it focused on shopper search behavior and value.\n  3. **Validate Against the Checklist:**\n\n     * Ensure all formatting and keyword requirements are met.\n\n* **Output Format:**\n\n  * Provide a **single plain text string** — no labels, no brand name, no quotation marks.\n\n---\n\n## Final Deliverable\n\nSubmit one optimized meta title for an eCommerce category page that:\n\n* Is under 60 characters.\n* Starts with the primary keyword or variation.\n* Contains **no brand/store name**.\n* Emphasizes buyer intent and core value.\n* Avoids blog or product-specific phrasing.\n\n---\n\n## Examples\n\n| **Category**         | **Example Meta Title**                             |\n| -------------------- | -------------------------------------------------- |\n| Modern Office Chairs | Shop Modern Office Chairs for Home & Office Use    |\n| Cat Trees            | Tall & Sturdy Cat Trees for Active Cats            |\n| Outdoor Patio Sets   | Stylish Outdoor Patio Sets for Every Garden        |\n| Gaming Desks         | Explore Gaming Desks for Pro-Level Setups          |\n| Vegan Skincare       | Natural Vegan Skincare – Cruelty-Free & Gentle     |\n| Standing Desks       | Adjustable Standing Desks for Ergonomic Workspaces |\n\n\n\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -1020,
+        1180
+      ],
+      "id": "bea2517c-fb15-49c8-905a-120d37c84294",
+      "name": "Meta Title Rewrtier"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get data from the Entity Extractor Agent node\nconst data = $input.all().map(item => {\n  return {\n    json: {\n      entityExtractedText: item.json.output // Rename 'output' to 'entityExtractedText'\n    },\n    pairedItem: 0\n  };\n});\n\nreturn data;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -640,
+        340
+      ],
+      "id": "890643d8-5699-4877-925e-b19ae5822be5",
+      "name": "entityExtractedText"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Rename 'output' to 'dataResearchText'\nconst data = $input.all().map(item => {\n  return {\n    json: {\n      dataResearchText: item.json.output\n    },\n    pairedItem: 0\n  };\n});\n\nreturn data;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -140,
+        340
+      ],
+      "id": "2fb1197b-8025-48e0-9f5a-7ccd0449d75c",
+      "name": "dataResearchText"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=\n# SEO eCommerce Category Page Meta Description Optimization Brief\n\n## 🧭 Objective  \nGenerate an SEO-friendly meta description for an **eCommerce category page** that clearly summarizes what users can expect to find, encourages high-intent clicks, and avoids vague or promotional language. The meta description must comply with formatting rules, stay within character limits, and **exclude all prohibited words or phrases**.\n{{ $('Markdown Formatting').item.json.CategoryPageFinalOutput }}\n\n---\n\n## ✅ Guidelines for Category Pages\n\n### 1. Meta Description Specifications\n\n* **Length:**\n\n  * Maximum 159 characters (ideal range: 155–159).\n* **Content Requirements:**\n\n  * Include the **primary category keyword** within the first 30 characters.\n  * Highlight a **clear commercial value** (e.g. range, affordability, convenience).\n  * Include a **call-to-action** suitable for online shopping (e.g. *Shop now*, *Browse options*, *Find deals*).\n* **Formatting Requirements:**\n\n  * ❌ Do **not** include labels like `Description:` or intros like `Welcome`.\n  * ❌ Do **not** include the **brand or store name**.\n  * ✔️ Only use these special characters: `|`, `-`, `()` (if they aid clarity).\n  * ✔️ Keyword usage must be natural — no stuffing or robotic phrasing.\n\n---\n\n### 2. ❌ Prohibited Words: Replace With Grounded Alternatives\n\nUse concrete, plain, and commercially relevant language. Avoid editorial fluff and overused tech/startup lingo.\n\n\n\n| 🚫 **Avoid**   | ✅ **Use Instead**               |\n| -------------- | ------------------------------- |\n| explore        | shop, browse, view              |\n| welcome        | *(remove entirely)*             |\n| discover       | shop, find, choose              |\n| elevate        | improve, upgrade                |\n| unleash        | unlock, enable                  |\n| unlock         | access, open                    |\n| showcase       | feature, offer                  |\n| journey        | selection, range                |\n| seamlessly     | easily, smoothly                |\n| craft          | design, build                   |\n| tapestry       | range, mix                      |\n| realm          | area, category                  |\n| foster         | support, encourage              |\n| groundbreaking | new, original                   |\n| captivating    | attractive, appealing           |\n| empower        | help, support                   |\n| engage         | connect, interact               |\n| facilitate     | support, make easier            |\n| leverage       | use, apply                      |\n| synergy        | collaboration, working together |\n| paradigm shift | change, new approach            |\n| robust         | strong, reliable                |\n| unprecedented  | unique, new                     |\n| innovative     | new, creative                   |\n| disruptive     | transformative                  |\n| amplify        | increase, boost                 |\n| tailor         | customise, adjust               |\n| thrive         | succeed, grow                   |\n| utilize        | use                             |\n| vital          | essential, key                  |\n| whimsical      | playful, fun                    |\n| vast           | large, extensive                |\n\n---\n\n### 3. 🛑 Banned Phrases: Replace With Clearer Alternatives\n\nAvoid clichés, corporate filler, and inflated editorial phrases. Prioritize direct, useful communication.\n\n| ❌ **Do Not Use**                        | ✅ **Use Instead**                |\n| --------------------------------------- | -------------------------------- |\n| in today’s world / fast-paced world     | now, currently                   |\n| in today’s ever-evolving landscape      | as trends shift, in this space   |\n| it is crucial to recognise              | it’s important to note           |\n| what sets X apart is                    | X is different because           |\n| more than just a... it’s a game-changer | it’s a helpful change            |\n| transforms workflows                    | improves how work gets done      |\n| play a significant role in shaping      | influence, affect                |\n| aims to explore                         | looks at, focuses on             |\n| we’ve got you covered                   | we offer, we provide             |\n| when it comes to                        | for, about, regarding            |\n| in conclusion / to summarize            | overall, finally                 |\n| furthermore / moreover / in addition    | also, plus                       |\n| on the other hand                       | alternatively, but               |\n| it might be the case                    | maybe, possibly                  |\n| it is often thought / one could argue   | some believe, it’s believed that |\n\n---\n\n## 🔄 Writing Process\n\n### Step-by-Step:\n\n1. **Review the Provided Category Data:**\n   Use the `{{ $('dataResearchText').item.json.dataResearchText }}` input as your factual basis.\n2. **Draft the Meta Description:**\n   Focus on clarity, user intent, and keyword integration — no branding or fluff.\n3. **Run Validation:**\n   Ensure the draft:\n\n   * Contains the main keyword early (within 30 characters).\n   * Avoids all banned words and phrases.\n   * Fits within 159 characters.\n   * Uses natural, user-focused language.\n\n---\n\n## 🎯 Final Deliverable\n\nSubmit a single, **plain text meta description** that:\n\n* Is **under 159 characters**.\n* **Starts with or includes the main keyword early**.\n* **Contains no brand name**.\n* **Avoids all prohibited words and phrases**.\n* **Uses clear, commercial language** tailored to high-intent shoppers.\n\n---\n\n## ✅ Examples (Compliant)\n\n| **Category**         | **Meta Description**                                                                       |\n| -------------------- | ------------------------------------------------------------------------------------------ |\n| Modern Office Chairs | Shop modern office chairs for comfort and posture support. Multiple styles, fast delivery. |\n| Cat Trees            | Durable cat trees for climbing, scratching & resting. Multiple sizes. Shop online today.   |\n| Outdoor Patio Sets   | Stylish outdoor patio sets built for every garden. Affordable pricing and easy delivery.   |\n| Gaming Desks         | Gaming desks with storage, lighting & space for dual setups. Available in multiple styles. |\n\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -540,
+        1180
+      ],
+      "id": "c6254edb-b3b3-496f-8043-d43c01192df5",
+      "name": "Meta Description Rewriter"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an **e‑commerce SEO specialist**.  \nUse this keyword below:\n{{ $json['Category Keyword '] }}\nTo Perform the following and **return a single JSON** with these keys:\n\n\n{\n  \"aspects\": [...],\n  \"entities\": [...],\n  \"synonyms\": [...],\n  \"antonyms\": [...],\n  \"holonymy\": [...],\n  \"keywords\": [...],\n  \"longTailKeywords\": [...],\n  \"lsiKeywords\": [...],\n  \"relatedTopics\": [...],\n  \"approach\": \"Brief summary of your method\"\n}\naspects (10): product features or attributes\n\nentities (10): salient nouns\n\nsynonyms (5): similar terms to the core concept\n\nantonyms (5): opposites of the core concept\n\nholonymy (2): wholes that include this product\n\nkeywords (10): high‑value single keywords\n\nlongTailKeywords (10): e‑commerce‑style long tails\n\nlsiKeywords (5): latent‑semantic terms\n\nrelatedTopics (2): semantically related subjects\n\nKeep your output concise and exact.\n\n\n\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -980,
+        340
+      ],
+      "id": "367504d8-4ccb-4acb-99c5-d379ac307644",
+      "name": "Category Entitiy Extractor Agent"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=## ✅ **ENHANCED CATEGORY PAGE GENERATION PROMPT (V2)**\n\nUse these inputs for your content:\n\n* `{{ $('entityExtractedText').item.json.entityExtractedText }}`\n* `{{ $json.dataResearchText }}`\n* Original keyword: `{{ $('SplitInBatches').item.json['Category Keyword '] }}`\n\n---\n\n## 🎯 Task\n\nYou are a **senior e-commerce copywriter and SEO specialist**. Your job is to generate a **fully-structured, SEO-optimized category page** in **Markdown** based on the provided research inputs.\n\n---\n\n## 1. 🔠 Page Structure & Sections\n\nFollow this order strictly:\n\n### 🟥 H1: Category Page Heading\n\n* One short, keyword-rich line only  \n* Use the **primary keyword** from `{{ $('entityExtractedText').item.json.entityExtractedText }}`\n* No fluff (Avoid “Explore,” “Discover,” “Category” etc.)\n\n### 🟧 Intro Paragraph (2–3 sentences)\n\n* Use the **primary keyword once**\n* Set clear, benefit-led context and segue into product listings\n* Avoid banned marketing clichés\n\n### 🟨 Unique Selling Points (USP) – Bullet List\n\n* 3–5 points or short sentences\n* Spotlight benefits: *quality, variety, price, exclusivity, materials, durability*\n* **Bold** all key features or benefit phrases\n\n### 🟩 Product Range Overview (Short Paragraph)\n\n* Describe key product types, sub-categories, brands, or distinguishing features\n* Mention **long-tail or secondary keywords** naturally\n\n### 🟦 Unique Category Description (300–500+ words)\n\n* Core content block — coherent, informative, and buyer-focused\n\nSplit this section into **3–4 short sub-sections** using `##` or `###` subheaders. Each section should:\n\n* Be ~100–150 words\n* Cover one of the following:\n  * What makes the category special\n  * Benefits and features\n  * Buying advice or usage tips\n  * Comparison to similar categories or products\n* Include **1 verifiable stat/fact** from `dataResearchText` in each subsection\n* Use 1–2 **secondary keywords** from `entityExtractedText`\n* Embed **at least 1 internal link** using anchor phrases like:\n  * “view more options”\n  * “see our full range”\n  * “browse our full collection”\n\n### 🟪 Benefits & Use Cases\n\n* Use **bullet lists** or **tables** for clarity\n* Focus on:\n  * Who this category is for\n  * What problems it solves\n  * Key user needs (e.g., pain relief, durability, style)\n\n---\n\n## 2. 🔍 SEO & Semantic Enrichment\n\n* **Primary Keyword**:\n  * From `{{ $('entityExtractedText').item.json.entityExtractedText }}`\n  * Include in: H1, intro, and **at least 2 subheaders**\n* **Secondary Keywords & LSI Terms**:\n  * Integrate naturally in body and subheaders\n  * Avoid repetition or keyword stuffing\n* **Long-Tail Variants**:\n  * Use especially in buying advice, product tips, and benefit breakdowns\n\n---\n\n## 3. ✍️ Style & Tone\n\n* **Sentence Length**: Short & punchy (3–4 sentences per paragraph max)\n* **Voice**: Active, direct, benefit-led\n* **Phrasing**: Subject–verb–object structure\n* **Contrast pairs**: Use dualities (e.g., “lightweight yet strong”)\n* **Avoid these terms**: “Discover,” “Explore,” “Experience,” “World of,” etc.\n\n---\n\n## 4. 📊 Additional Format Rules\n\n* **Technical Specs** Section  \n  Add a `## Technical Specifications` section using **bullet points** and **metric units only**  \n  Each point should use a **contrast pair** (e.g., “compact yet powerful”)\n\n* **Call to Action (CTA)**  \n  Final section should feature a **clear, benefit-specific CTA**  \n  Example: “Browse our full collection to improve sleep naturally”\n\n* **FAQ Section** (3–5 Q&As)  \n  Use markdown collapsibles (if supported), or clear formatting\n\n* **Trust Signals / Social Proof**  \n  One short paragraph or sentence  \n  Example: “Rated 4.8/5 by over 1,000 verified customers”\n\n* **Image Alt Text Suggestions**  \n  Include alt text + brief captions for any product examples\n\n* **Schema Markup Block**  \n  Output the FAQ section as schema-ready JSON-LD\n\n---\n\n## 5. 📏 Output Requirements\n\n* **Total Length**: 700–900 words\n* **Markdown Format**: Use correct headers, bold, lists, tables\n* **Factual Accuracy**: Use and cite inputs from `dataResearchText`\n* **Internal Links**: Include 1–2 internal anchor links in body and CTA",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "# OUTPUT STYLE RULES\n- ## TONE: informal\n- ## TECHNICAL OUTPUT - HOW TECHNICAL SHOULD THE CONTENT BE:  very technical \n- ## LENGTH: follow guideline\n- ## IDEAL CUSTOMER PERSONA: Do not mention the details specifically\n- ## FORMATTING\n  - Measurements in **mm, cm, kg** only  \n  - Use **Markdown** syntax throughout  \n  - Do **not** start any sentence with “WELCOME”  \n  - Do **not** reference these style rules in the final output  \n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -980,
+        640
+      ],
+      "id": "c0e2d0cf-bf41-4c78-b192-215376fe9c61",
+      "name": "Category Page Rewriter"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get data from the Entity Extractor Agent node\nconst data = $input.all().map(item => {\n  return {\n    json: {\n      CategoryPageFeedback: item.json.output // Rename 'output' to 'entityExtractedText'\n    },\n    pairedItem: 0\n  };\n});\n\nreturn data;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -160,
+        640
+      ],
+      "id": "27570af4-4590-4ae8-8d0b-bdc58f78e705",
+      "name": "CategoryPageFeedback",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -520,
+        780
+      ],
+      "id": "cf09c148-59f3-48a6-b696-32bd58ff8320",
+      "name": "OpenAI Chat Model5",
+      "credentials": {
+        "openAiApi": {
+          "id": "VMIZpnzkHuPAc1g5",
+          "name": "OpenAi account Mine "
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -1280,
+        1080
+      ],
+      "id": "ee574949-1ded-44c7-9c54-05c903f07450",
+      "name": "OpenAI Chat Model6",
+      "credentials": {
+        "openAiApi": {
+          "id": "VMIZpnzkHuPAc1g5",
+          "name": "OpenAi account Mine "
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=## 🧪 **CATEGORY PAGE QUALITY AUDIT PROMPT (V2)**\n\nYou are a **UX & SEO quality auditor** working within a structured content generation system.  \nYour job is to **evaluate a category-page draft** against the **original generation prompt** and **current e-commerce UX best practices** to ensure structure, SEO alignment, clarity, and user-centered effectiveness.\n\n---\n\n## 🧩 Evaluation Inputs\n\n1. **Draft Category Page Content** → `{{ $json.CategoryPageDraft }}`\n2. **Generation Prompt (Structure, Style, SEO Rules)** → `{{ $json.GenerationPrompt }}`\n3. **Research Data (Entities, Facts, Keywords)** → `{{ $json.dataResearchText }}`\n\n---\n\n## ✅ Step 1: Prompt Compliance Checklist\n\n| Requirement | Present? ✅/❌ | Notes |\n|-------------|----------------|-------|\n| H1 with primary keyword |   |   |\n| 2–3 sentence intro using primary keyword |   |   |\n| 5+ H2 sections (well-structured) |   |   |\n| Technical Specs section (bullets, metric units) |   |   |\n| Clear CTA at the end |   |   |\n| FAQ section (3–5 Q&As) |   |   |\n| Trust signals (e.g., reviews, ratings) |   |   |\n| At least 1 internal anchor link |   |   |\n| Bolded key phrases (USPs, features) |   |   |\n| Stats or insights from research data |   |   |\n| Hemingway tone & active voice |   |   |\n| Banned words avoided (“Discover,” “Explore,” etc.) |   |   |\n| Markdown formatting intact |   |   |\n| Word count: 700–900 words |   |   |\n\n**Prompt Compliance Result:** `Pass` or `Fail`\n\n---\n\n## ✅ Step 2: UX & SEO Best-Practice Scorecard\n\n**Scoring Legend:**  \n5 = Excellent | 4 = Good | 3 = Adequate | 2 = Weak | 1 = Poor\n\n| Category | Score (1–5) | Notes |\n|----------|-------------|-------|\n| 1. Navigation & Findability *(Clear headings, scannable layout)* |   |   |\n| 2. Filtering & Sorting Readiness *(Logical subcategories, clarity for dropdowns)* |   |   |\n| 3. Product Discovery & CTAs *(Prominent call-to-actions, buyer flow support)* |   |   |\n| 4. Mobile UX & Readability *(Short paragraphs, responsive formatting)* |   |   |\n| 5. Visual/Structural Presentation *(Lists, tables, markdown elements)* |   |   |\n| 6. Tone & Wording *(Clear, concise, benefit-driven language)* |   |   |\n| 7. Social Proof & Trust Signals *(Reviews, ratings, policies)* |   |   |\n| 8. Supplementary Content *(FAQ, links, buying guide present)* |   |   |\n\n---\n\n## 🔧 Step 3: Improvement Recommendations\n\nFor each section scored **3 or lower**, provide **2–3 actionable suggestions**. Be direct, specific, and improvement-oriented.\n\n**Example:**\n- *Section 6 (Tone & Wording):* Avoid passive voice in the intro. Rephrase using clearer subject–verb–object construction.  \n- *Section 7 (Trust Signals):* Add third-party review indicators or brief “Rated 4.8/5…” sentence near product mentions.\n\n---\n\n## 🚨 Optional Red Flags (If Present)\n\nFlag critical issues that might disqualify the draft:\n\n- ❌ Uses banned terms like “Explore,” “Discover,” “World of”\n- ❌ Fails to include internal links\n- ❌ Keyword stuffing or poor repetition\n- ❌ Word count < 650 or > 950\n- ❌ Missing CTA or FAQ section\n\n---\n\n## 📤 Output Format\n\nReturn:\n\n1. ✅ **Prompt Compliance Table** + `Pass/Fail`\n2. ✅ **UX & SEO Scorecard Table**\n3. ✅ **Improvement Recommendations**\n4. ⚠️ **Red Flags** (if any)\n\nUse **Markdown formatting**. Make responses structured and scannable.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -460,
+        640
+      ],
+      "id": "ee31c04b-2cfc-4f9a-a444-6adde757b63b",
+      "name": "Category page Feedback"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get data from the Entity Extractor Agent node\nconst data = $input.all().map(item => {\n  return {\n    json: {\n      CategoryPageDraft: item.json.output // Rename 'output' to 'entityExtractedText'\n    },\n    pairedItem: 0\n  };\n});\n\nreturn data;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -640,
+        640
+      ],
+      "id": "38ac8de9-eacc-4894-8de3-9a00b20e2fd1",
+      "name": "CategoryPageDraft"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get data from the Entity Extractor Agent node\nconst data = $input.all().map(item => {\n  return {\n    json: {\n      CategoryPageFinalOutput: item.json.output // Rename 'output' to 'entityExtractedText'\n    },\n    pairedItem: 0\n  };\n});\n\nreturn data;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -640,
+        920
+      ],
+      "id": "8ab6019a-45c9-48da-87da-a64e8c84778a",
+      "name": "Category page Final output",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an expert UK-based copywriter tasked with **rewriting** a category-page draft for for an ecommerce website  to meet all editorial, SEO, tone, and brand requirements.\n\n---\n\n### 🔧 INPUTS\n\n- **Original draft** (Markdown):  \n  `{{ $('CategoryPageDraft').item.json.CategoryPageDraft }}`\n\n- **Data Sources**:  \n  - `{{ $('entityExtractedText').item.json.entityExtractedText }}`  \n  - `{{ $('dataResearchText').item.json.dataResearchText }}`  \n\n\n- **Category Page Feedback**:  \n  `{{ $json.CategoryPageFeedback }}`\n\n---\n\n### ✍️ REWRITE BRIEF\n\nYou must rewrite the page in **UK English** using **plain, direct language** and avoiding all banned terms. Maintain alignment with Ecomerchant’s brand tone: calm, confident, factual, and helpful.\n\n#### 1. H1 Heading\n- One short, keyword-rich phrase.\n- Clearly state the **product category** (e.g., “Natural Insulation Materials”).\n- ✅ Match natural search terms.\n- ❌ Do **not** include branding, fluff, or banned terms like “Explore,” “Discover,” or “Category.”\n\n#### 2. Introduction\n- 2–3 short sentences above product listings.\n- Use the **primary keyword** naturally.\n- Do **not** use banned buzzwords or phrases.\n- Clarify purpose, scope, and benefits simply.\n\n#### 3. H2 Sections \nEach H2 must:\n- Target a distinct **shopper concern, feature, or product type**.\n- Use **long-tail or secondary keywords** where possible.\n- Be written in **plain UK English**, active voice.\n- Avoid generic labels like “Introduction” or “Conclusion.”\n-Ensure each H2 addresses a different product type, use case, or buyer concern (e.g., cost, application, certification, performance).\n\nEach paragraph under an H2 must:\n- Be **150–200 words**.\n- Use short, declarative sentences.\n- Bold key terms.\n- Include a **specific statistic or trend** from `dataResearchText`.\n- Reference a **product or feature** from `productSummariser`.\n- Use any relevant terms from `entityExtractedText`.\n\n#### 4. SEO Guidelines\n- Use the **primary keyword** in the H1, intro, and 2+ H2s.\n- Include **secondary keywords** and **natural language long-tails**.\n- Do **not** keyword stuff\n-Try to include at least one long-tail secondary keyword per H2 section (e.g., 'low carbon insulation for lofts\n\n#### 5. Tone, Style, Structure\n-  Write this for 13 year old level \n- Total word count: **650 -750 words**\n- Use **UK English** spelling and units.\n- Avoid adverbs and vague qualifiers.\n- Use **semantic triples**, **short sentences**, and **active voice**.\n- Ensure clarity, consistency, and technical accuracy.\n- Match the **Ecomerchant persona** (defined below).\n\n\n#### 7. Final Call to Action\n- End with a **calm, directive, benefit-focused CTA**.\n- Do **not** use salesy or hype language.\n-CTA should frame a specific benefit to the user’s building goal (e.g., ‘build with confidence’ or ‘reduce long-term energy bills’\n\n---\n\n\n\n---\n\n### 🚫 DO NOT USE: BANNED WORDS\n\n**Replace these words/phrases with grounded alternatives**:\n\ndelve → examine, look into  \nelevate → improve, raise  \nunleash → enable, make available  \nunlock → access, gain  \nshowcase → present, highlight  \njourney → process, path  \nseamlessly → smoothly, without interruption  \ncraft → create, build  \ntapestry → collection, mix  \nrealm → area, field  \nfoster → support, encourage  \ngroundbreaking → new, original  \ncaptivating → interesting, engaging  \nempower → help, support  \nengage → interact with, connect with  \nfacilitate → make easier, support  \nharness → use, apply  \nleverage → use, take advantage of  \nsynergy/synergize → collaboration, working together  \nparadigm shift → change, new approach  \nrobust → strong, reliable  \nunprecedented → new, never seen before  \ninnovative → new, creative  \ndisruptive → transformative, challenging the norm  \nAI-driven → powered by AI, uses AI  \npivot → shift, change direction  \nactualize → achieve, make happen  \namplify → increase, boost  \narticulate → explain, express clearly  \naugment → enhance, improve  \nbeacon → example, guide  \nbenchmark → standard, reference point  \ncalibrate → adjust, tune  \ncaptivate → interest, hold attention  \nconsolidate → combine, merge  \ncontextualize → explain background  \ncorrelate → relate, connect  \nelucidate → explain, clarify  \nenvision → imagine, plan  \nevaluate → assess, review  \nexpound → describe, explain  \nextrapolate → estimate, infer  \nilluminate → clarify, shed light on  \nincubate → develop, nurture  \nintegral → essential, necessary  \nintricate/multifaceted → complex, detailed  \njuxtapose → compare, place side by side  \nkaleidoscope → variety, range  \nlinchpin → key part, essential element  \nmanifold → many, varied  \nmitigate → reduce, lessen  \nnuanced → subtle, detailed  \norchestrate → organise, coordinate  \npivotal → important, crucial  \nplethora → many, a lot  \nquantify → measure, count  \nrecalibrate → adjust, re-evaluate  \nrecapitulate → summarise, repeat briefly  \nretrofit → update, modify  \nscrutinize → inspect, examine closely  \nstrategize → plan, develop a strategy  \nsubstantiate → support with evidence  \nsynthesize → combine, put together  \ntailor → customise, adjust  \ntheorize → speculate, think through  \nthrive → succeed, grow  \ntraverse → cross, move through  \nunderpins → supports, is the basis of  \nunparalleled → unique, one of a kind  \nupgrade → improve, enhance  \nutilize → use, apply  \nvalidate → confirm, check  \nvast → large, wide  \nvigilance → alertness, care  \nvital → important, essential  \nwhimsical → playful, unusual  \n\n---\n\n### 🛑 BANNED PHRASES: Replace With\n\nin today’s world → now, currently  \nin today’s digital world → in the digital age  \nin today’s ever-evolving world → as trends shift  \nin the ever-evolving landscape of → in this changing area  \nit is crucial to recognise → it’s important to note  \nwhat sets X apart is → X is different because  \nmore than just a tool, X is a game-changer → X is a useful tool that can improve results  \nnot just a solution, but a revolution → a helpful change, a major improvement  \nbeyond simple efficiency, X transforms workflows → X improves how work gets done  \nplay a significant role in shaping → influence, affect  \naims to explore → looks at, tries to understand  \nin today’s fast-paced world → nowadays, with current trends  \nin conclusion → to sum up, overall  \nwe’ve got you covered → we provide what you need  \nwhen it comes to → about, regarding  \nfurthermore / moreover / in addition → also, plus  \non the other hand → alternatively, but  \nit might be the case → maybe, perhaps  \nit is often thought / one could argue → some believe\n",
+        "options": {
+          "systemMessage": "Brand Persona"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -980,
+        920
+      ],
+      "id": "5f199a32-8e64-46f9-8575-0bbc274beeb2",
+      "name": "Category Page Final Output"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "SplitInBatches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SplitInBatches": {
+      "main": [
+        [
+          {
+            "node": "Category Entitiy Extractor Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Category Entitiy Extractor Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Data Research Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data Research Agent": {
+      "main": [
+        [
+          {
+            "node": "dataResearchText",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Category Page Rewriter",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets1": {
+      "main": [
+        [
+          {
+            "node": "SplitInBatches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Meta Title Rewrtier",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Meta Description Extractor": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Meta Title Extractor": {
+      "main": [
+        [
+          {
+            "node": "Meta Description Rewriter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Markdown Formatting": {
+      "main": [
+        [
+          {
+            "node": "Meta Title Rewrtier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Meta Description Rewriter",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Meta Title Rewrtier": {
+      "main": [
+        [
+          {
+            "node": "Meta Title Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "entityExtractedText": {
+      "main": [
+        [
+          {
+            "node": "Data Research Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "dataResearchText": {
+      "main": [
+        [
+          {
+            "node": "Category Page Rewriter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Meta Description Rewriter": {
+      "main": [
+        [
+          {
+            "node": "Meta Description Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Category Entitiy Extractor Agent": {
+      "main": [
+        [
+          {
+            "node": "entityExtractedText",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Category Page Rewriter": {
+      "main": [
+        [
+          {
+            "node": "CategoryPageDraft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CategoryPageFeedback": {
+      "main": [
+        [
+          {
+            "node": "Category Page Final Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model5": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Category page Feedback",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model6": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Category Page Final Output",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Category page Feedback": {
+      "main": [
+        [
+          {
+            "node": "CategoryPageFeedback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CategoryPageDraft": {
+      "main": [
+        [
+          {
+            "node": "Category page Feedback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Category page Final output": {
+      "main": [
+        [
+          {
+            "node": "Markdown Formatting",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Category Page Final Output": {
+      "main": [
+        [
+          {
+            "node": "Category page Final output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ecf8f5a367a053b31a916eab7d52753441c1335d50da9cd94c91e52b4e43163f"
+  }
+}

@@ -1,0 +1,1363 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1J2jx7UZgT2T5xjqJi3SM5LN6SP9jJAQl4Le_nEJbUuY",
+          "mode": "list",
+          "cachedResultName": "Content Strategy ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1J2jx7UZgT2T5xjqJi3SM5LN6SP9jJAQl4Le_nEJbUuY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Prepped topics",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1J2jx7UZgT2T5xjqJi3SM5LN6SP9jJAQl4Le_nEJbUuY/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -720,
+        740
+      ],
+      "id": "b06fe127-03cc-4a12-aeb3-7e02464cb1db",
+      "name": "Google Sheets",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "oyhduPdBw1ea9W4y",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -520,
+        680
+      ],
+      "id": "62741849-4b4f-4254-8f33-e924449c246b",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "VMIZpnzkHuPAc1g5",
+          "name": "OpenAi account Mine "
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "perplexity/sonar",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -520,
+        880
+      ],
+      "id": "5bf9d9f4-db08-4e72-a013-e3d76aa8b32e",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "Fpdp3uXrN0vUevHD",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=This is a keyword for an article that I want to write\n{{ $json['Article Title: '] }}\nplease do the following \n10 aspects of the entity\n10 - Salient Entities (Nouns)\n5 - Synonyms\n5 - Antonyms\n2 - Holonymy\n10 salient keywords \n10 - Salient Long-tail Keywords\n5 - Salient LSI Keywords\n2 - Salient Semantically Related Topics\n\n\n\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -460,
+        560
+      ],
+      "id": "1450dc55-8278-414a-a684-861a8ccb5242",
+      "name": "Entitiy Extractor Agent"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=We are doing research for a blog article\n{{ $json['Article Title: '] }}\nuse this keyword to help you \nextract the main keywords and topic then:\nWhat is the Search intent behind the kayword\nGive me 20 Facts associated \n10 factors from your research that should be included in the article \n## 1. Technical Analysis: \n- Extract frequent terms using cosine similarity\n- Calculate similarity scores between search results\n- Identify key factual data points\n- Generate term frequency matrix\n## 2. Intent Analysis:\n- Compare query vectors with common patterns \n- Analyze semantic relationships \n- Determine search context \n## 3. Output Format:\n- Technical Data: [bullet points]\n-  Search Intent: [analysis]\n-  Related Terms: [frequency-based list] ",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -460,
+        760
+      ],
+      "id": "d4fabb8b-e2b3-4d59-902a-f9f75f05ae48",
+      "name": "Data Research Agent"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "numberInputs": 3,
+        "options": {
+          "includeUnpaired": false
+        }
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        -20,
+        380
+      ],
+      "id": "a700f752-a5c4-42c4-9bbf-cae1101eae76",
+      "name": "Merge",
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -900,
+        740
+      ],
+      "id": "3b211c1c-4015-4809-b6a6-157fb1e335a0",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {
+          "reset": false
+        }
+      },
+      "name": "SplitInBatches",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        -720,
+        560
+      ],
+      "typeVersion": 1,
+      "id": "8e3d124b-5daa-4d51-9787-dd590ea54bfe"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get data from the Entity Extractor Agent node\nconst data = $input.all().map(item => {\n  return {\n    json: {\n      entityExtractedText: item.json.output // Rename 'output' to 'entityExtractedText'\n    },\n    pairedItem: 0\n  };\n});\n\nreturn data;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -140,
+        560
+      ],
+      "id": "b8a7af5e-1934-4a5e-8cfd-f7be4933dee7",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Rename 'output' to 'dataResearchText'\nconst data = $input.all().map(item => {\n  return {\n    json: {\n      dataResearchText: item.json.output\n    },\n    pairedItem: 0\n  };\n});\n\nreturn data;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -140,
+        760
+      ],
+      "id": "5cebfecc-6ca9-4513-99ca-6d592692175e",
+      "name": "Code1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        180,
+        480
+      ],
+      "id": "c0778eca-38d7-4d31-8647-16d43f3e8f58",
+      "name": "OpenAI Chat Model3",
+      "credentials": {
+        "openAiApi": {
+          "id": "VMIZpnzkHuPAc1g5",
+          "name": "OpenAi account Mine "
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an SEO content strategist tasked with creating semantically rich H2 subheaders and associated keyword structures to enhance an article’s search engine performance. Follow the detailed, step-by-step instructions below to produce an output that is precise, comprehensive, and fully aligned with SEO best practices.\n\n---\n\n### **Context and Data Inputs**\n\n## Working Titles & Subheaders :\n{{ $('SplitInBatches').item.json['Article Title: '] }}\nData from the SERPS\n\n---\n# Data Sources:  \n\n\n\n### **Task Overview**\nUsing the following data sets \nSERPs Data \n{{ $json.SERPSdata }}\n## Keyword Data:  \n{{ $json.entityExtractedText }}\n## Factual Data: \n{{ $json.dataResearchText }}\n\nthinking about the Search intent, the entities, associated keywords and other relevant data\nbuild out the following \n\n## The H1 Title \n## 7-9 SEO-Optimized H2 Subheaders  \n## Keyword and Entity Integration for each subheader using the data from [Keyword Data] \n## Background Information supporting each subheader using the data from [Factual Data] \n\nYour output must strictly adhere to the following formatting and content requirements.\n\n---\n\n### **Step-by-Step Instructions**\n\n1. **Generate H2 Subheaders:**\n   - Create **7-9 H2 subheaders** without any introductory text.\n   - **Formatting Requirements:**\n     - each subheader must be fomatted as a subheader \n     - Each subheader must begin with or include the main/salient  keywords/entitys from the [Keyword Data] near the start.\n     - Arrange the subheaders in a logical, coherent sequence that mirrors the article’s semantic flow and anticipated user queries.\n   - **Content Guidelines:**\n     - Each subheader should focus exclusively on one unique aspect related to the main topic.\n\n2. **Integrate Keywords and Entities:**\n   - **For Each H2 Subheader, include the following immediately after the subheader:**\n     - **LSI Keywords:** List exactly 3 relevant latent semantic indexing (LSI) keywords.\n     - **Long-tail Keywords:** Provide clear, salient long-tail keywords that correspond specifically to the subheader’s focus.\n     - **Related Entities:** List exactly 3–4 entities that are semantically connected to the subheader’s topic.\n   - Clearly separate these elements using markdown formatting (e.g., bullet points or inline lists).\n\n3. **Provide Background Information:**\n   - Under each H2 subheader (following the keywords and entities), include a list of **7-8 bullet points** containing background information from [Factual Data] \n   - **Content Guidelines:**\n     - Use the factual data provided.\n     - Present only the facts without synthesizing or extrapolating opinions.\n     - Each bullet point should succinctly support the subheader’s theme.\n\n4. **Output Formatting & Style:**\n   - **Markdown Requirements:**\n     - Write in plain text with clear markdown formatting.\n     - Do not enclose the output in markdown code fences or add markdown markers at the beginning or end.\n     - **Do not include any introductory or closing text; begin directly with the first numbered H2 subheader.**\n   - **General Style:**\n     - Use clear, concise, and objective language.\n     - Maintain logical sequencing and consistency across all sections.\n     - The output must strictly reflect the provided data and instructions.\n\n---\n\n### **Important Reminders**\n\n- **Review the Input Data:** Ensure you have fully understood the provided title, keyword data, and factual data before generating your output.\n- **Adherence to Instructions:** Follow every step precisely, ensuring each subheader and its supporting sections meet the exact quantity and content specifications.\n- **No Synthesis:** Do not invent or synthesize new information. Repeat only the provided data in a clear, structured manner.\n- **Iterative Quality Check:** Confirm that every section—H2 subheaders, keywords/entities, and bullet points—is complete, logically structured, and formatted exactly as specified.\n\n---\n\n### **Example Template (For Reference Only – Do Not Include in Final Output)**\n\n1. Main Keyword: [Example Subheader]\n   - LSI Keywords: keyword1, keyword2, keyword3\n   - Long-tail Keywords: [Example long-tail phrase]\n   - Related Entities: Entity1, Entity2, Entity3, Entity4\n   - Background Information:\n       * Bullet point 1\n       * Bullet point 2\n       * Bullet point 3\n       * Bullet point 4\n       * Bullet point 5\n       * Bullet point 6\n       * Bullet point 7\n\n---\n\nFollow these instructions carefully. Your final output should be clear, logically structured, and fully aligned with the guidelines above.",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "Output must be in Markdown \n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        240,
+        380
+      ],
+      "id": "211dfef3-8836-4370-8222-5657421944b1",
+      "name": "Article structure prompt"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=# SEO Content Creation Brief: Full Article\n\n## Objective\nProduce a detailed, SEO-optimized article that directly addresses the content title while engaging a professional audience interested in high-quality technical insights. The article must integrate interactive elements, adhere to specific style guidelines, and be divided into three distinct sections: **Introduction**, **Body**, and **Conclusion**. but do not mention them in the content\n\n\nArticle Title: [{{ $('SplitInBatches').item.json['Article Title: '] }}]\nWrite out a detailed and SEO optimised Article\nThink this through step by step\n###[output in MARKDOWN]\n###[MAKE SURE YOU ADD AN ENGAGING INTRO AND CONCLUSION]\nUse the following article outline: [ {{ $json.ArticleOutline }}]\nEach section should be medium length\nEach section should be 200-250 words long\nWhere possible in the content, create one or more of the following interactive options. Do not embed anything; make it yourself:\n\nMake sure you give the main answer first\n###[output in Formatted text, not HTML]\n{INSTRUCTIONS}\n\n## Write the article for this persona type {{ $('SplitInBatches').item.json['Content Persona:'] }}\n## Write this content in the style of {{ $('SplitInBatches').item.json['content writing style '] }}\n## Tone of voice for the article {{ $('SplitInBatches').item.json['Article Tone of voice'] }}\n## This article should have a {{ $('SplitInBatches').item.json['Article Complexity Level '] }} complexity level\n## This Article should have a {{ $('SplitInBatches').item.json['technical details Level'] }} level of technical detail\n### [Begin with answering the main query (title) directly]\n### [Use semantic triple syntax]\n### [Use Hemingway's Rules]\n### [Use Elements of Style by William Strunk Jr. and E.B. White]\n### [Use hyponyms of entities (nouns)]\n### [Use Named Entities]\n### [Mention a random fact]\n### [Use conceptual context but don't mention it]\n### [Use innovative transitional grammar at the start of each paragraph]\n### [Avoid transitional adverbs]\n### [Improve the lexical semantics of the above]\n{/INSTRUCTIONS}\" \n!!!DON'T MENTION RULES, STYLES, SYNTAX OR INSTRUCTIONS.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        240,
+        580
+      ],
+      "id": "7670d510-9763-4ce8-aec1-f90e247d1713",
+      "name": "Article Body Writer"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4",
+          "mode": "list",
+          "cachedResultName": "gpt-4"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        180,
+        700
+      ],
+      "id": "79ff8a92-5886-461b-9154-9da415bd987b",
+      "name": "OpenAI Chat Model4",
+      "credentials": {
+        "openAiApi": {
+          "id": "VMIZpnzkHuPAc1g5",
+          "name": "OpenAi account Mine "
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        180,
+        880
+      ],
+      "id": "ce15f660-25c9-44b9-be1a-a57bbd33f049",
+      "name": "OpenAI Chat Model2",
+      "credentials": {
+        "openAiApi": {
+          "id": "VMIZpnzkHuPAc1g5",
+          "name": "OpenAi account Mine "
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1J2jx7UZgT2T5xjqJi3SM5LN6SP9jJAQl4Le_nEJbUuY",
+          "mode": "list",
+          "cachedResultName": "Content Strategy ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1J2jx7UZgT2T5xjqJi3SM5LN6SP9jJAQl4Le_nEJbUuY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1511818233,
+          "mode": "list",
+          "cachedResultName": "Content ouput ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1J2jx7UZgT2T5xjqJi3SM5LN6SP9jJAQl4Le_nEJbUuY/edit#gid=1511818233"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Meta title ": "={{ $json.MetaTitle }}",
+            "meta descrption ": "={{ $json.description }}",
+            "Table Or Infographic ": "={{ $json.HTMLInfographicOrTable }}",
+            "Final Article ": "={{ $json.UpdatedArticle }}",
+            "Image prompts ": "={{ $json.ImagePrompts }}"
+          },
+          "matchingColumns": [
+            "output"
+          ],
+          "schema": [
+            {
+              "id": "Meta title ",
+              "displayName": "Meta title ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "meta descrption ",
+              "displayName": "meta descrption ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Final Article ",
+              "displayName": "Final Article ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Table Or Infographic ",
+              "displayName": "Table Or Infographic ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Image prompts ",
+              "displayName": "Image prompts ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "cellFormat": "RAW"
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1380,
+        1060
+      ],
+      "id": "6f1cd237-c036-45f6-8388-d352c80e331a",
+      "name": "Google Sheets1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "oyhduPdBw1ea9W4y",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        200,
+        1100
+      ],
+      "id": "30553c67-795d-4fb5-b185-f3c1b099489f",
+      "name": "OpenAI Chat Model5",
+      "credentials": {
+        "openAiApi": {
+          "id": "VMIZpnzkHuPAc1g5",
+          "name": "OpenAi account Mine "
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "You are an expert SEO and content quality analyst.\n\nYour task is to assess the overall quality of the following article based on SEO optimization and content readability. Provide a structured evaluation with specific, actionable insights for improvement.\n\n---\n\n## Input Article:\n{{ $('Merge2').item.json['Original Article'] }}\n\n---\n\n## SEO Assessment:\n1. How well aligned are the headers and subheaders with the core topic?\n2. How descriptive and keyword-rich are the headers and subheaders?\n3. Does the article stay focused on the main topic throughout?\n4. Are LSI and related keywords effectively used in the content?\n5. Is the content optimized for the topic and does it include relevant entities and related terms?\n6. Does the article match the user's search intent for this topic?\n\n## Readability Assessment:\n1. Is the flow of the article consistent and logical from start to finish?\n2. Is the content clear, engaging, and easy to understand?\n3. Does the article demonstrate subject matter expertise?\n4. Is the language conversational and natural?\n\n---\n\n## Output Format:\n- Strengths:\n- Weaknesses:\n- Suggestions for Improvement:\n- Summary Score: (/100)\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        260,
+        780
+      ],
+      "id": "fdae0661-5007-4c9b-87ff-09ab63ecca67",
+      "name": "Quality Feedback"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a professional content writer and SEO specialist.\n\nUse the feedback provided below to rewrite the article. Ensure that all improvements are clearly integrated. Maintain clarity, tone, and intent, while enhancing readability and SEO effectiveness.\n\n---\n\n## Feedback Summary:\n{{ $json.ArticlelAsessment }}\n\n---\n\n\n# Rewrite Instructions:\nmake sure there is Brief introduction (3-5 sentences) that is optiomsed and engaging \n-  Target Audience= {{ $('SplitInBatches').item.json['Target audience'] }}\n- Language:  {{ $('SplitInBatches').item.json['Language '] }}\n- This artciel needs to be at least {{ $('Google Sheets').item.json['Article Length (word count)'] }} long \n- Write the article for this persona type:{{ $('Google Sheets').item.json['Content Persona:'] }}\n- Write this content in the style of: {{ $('Google Sheets').item.json['content writing style '] }}\n- Tone of voice: {{ $('Google Sheets').item.json['Article Tone of voice'] }}\n- Complexity level: {{ $('Google Sheets').item.json['Article Complexity Level '] }}\n- Technical detail level: {{ $('Google Sheets').item.json['technical details Level'] }}\n- Use data points and statistics where appropriate\n- Create a conclusion that summarizes key points\n- End with a clear call-to-action\n\n\nWrite a comprehensive article about [TOPIC]\nStructure must include:\n\nCompelling headline\n\n3-5 main sections with descriptive subheadings\nEach section should contain 2-3 paragraphs\nInclude 1-2 relevant examples or case studies\n\n\n\nTone should be [FORMAL/CONVERSATIONAL/TECHNICAL]\nTarget audience is [AUDIENCE]\nArticle length: [NUMBER] words\n\nOptimize for readability with short paragraphs and simple language\n\n\n---\n\n## Rewrite This Article:\n\n{{ $('FinalArticle').item.json.FinalArticle }}\n\n\nDO NOT USE THESE WORDS IN THE CONTENT \n[\n  { \"find\": \"In conclusion\", \"replace\": \"So, to wrap things up\" },\n  { \"find\": \"It is important to note that\", \"replace\": \"Keep in mind\" },\n  { \"find\": \"This article will explore\", \"replace\": \"Let’s dive into\" },\n  { \"find\": \"As previously mentioned\", \"replace\": \"Like we said earlier\" },\n  { \"find\": \"There are many factors to consider\", \"replace\": \"A few key things matter\" },\n  { \"find\": \"In today’s world\", \"replace\": \"These days\" },\n  { \"find\": \"In today’s society\", \"replace\": \"These days\" },\n  { \"find\": \"A variety of\", \"replace\": \"A mix of\" },\n  { \"find\": \"Moreover\", \"replace\": \"Also\" },\n  { \"find\": \"Furthermore\", \"replace\": \"Plus\" },\n  { \"find\": \"In addition\", \"replace\": \"On top of that\" },\n  { \"find\": \"It is widely acknowledged that\", \"replace\": \"Most people agree\" },\n  { \"find\": \"According to recent studies\", \"replace\": \"Research shows\" },\n  { \"find\": \"Significantly\", \"replace\": \"What really stands out\" },\n  { \"find\": \"Notably\", \"replace\": \"What’s worth noting\" },\n  { \"find\": \"Undoubtedly\", \"replace\": \"No question\" },\n  { \"find\": \"Clearly\", \"replace\": \"It’s obvious\" },\n  { \"find\": \"Repetition of thesis\", \"replace\": \"Rephrase or summarize differently\" },\n  { \"find\": \"Based on my experience\", \"replace\": \"People often say\" },\n  { \"find\": \"Experts agree that\", \"replace\": \"Some experts think\" },\n  { \"find\": \"This is the best approach\", \"replace\": \"One smart option is\" },\n  { \"find\": \"Let’s take a closer look at\", \"replace\": \"Let’s break this down\" },\n  { \"find\": \"Throughout history\", \"replace\": \"Over time\" }\n]\n\n\nFOR THIS ARTCIEL ALSO MAKE SURE THESE WORDS ARE NOT USED \n{{ $('SplitInBatches').item.json['Forbidden words '] }}\n\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        260,
+        1000
+      ],
+      "id": "a7a33b9a-45a0-44d2-ae81-39b676bc1cd1",
+      "name": "Updated Article"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Rename 'output' to 'dataResearchText'\nconst data = $input.all().map(item => {\n  return {\n    json: {\n      ArticleOutline: item.json.output\n    },\n    pairedItem: 0\n  };\n});\n\nreturn data;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        620,
+        380
+      ],
+      "id": "55ab56e0-5cb2-48ec-8af1-c2981f5e6e7e",
+      "name": "Article Structure"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Rename 'output' to 'dataResearchText'\nconst data = $input.all().map(item => {\n  return {\n    json: {\n      FinalArticle: item.json.output\n    },\n    pairedItem: 0\n  };\n});\n\nreturn data;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        620,
+        580
+      ],
+      "id": "deec15d2-38dd-4240-968b-07c4068ac29c",
+      "name": "FinalArticle"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Rename 'output' to 'dataResearchText'\nconst data = $input.all().map(item => {\n  return {\n    json: {\n      ArticlelAsessment: item.json.output\n    },\n    pairedItem: 0\n  };\n});\n\nreturn data;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        620,
+        780
+      ],
+      "id": "859ce3d8-37cd-4397-9bef-7852a2c11ab1",
+      "name": "ArticlelAsessment"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=\n# SEO Blog Post Meta Title Optimization Brief\n\n## Objective\nGenerate an SEO-friendly meta title for blog posts that succinctly summarizes the article’s content and entices users to click. The meta title must comply with specified character limits, exclude product page formatting rules, and follow industry best practices for blog content.\n{{ $json.MainArticle }}\n## Guidelines for Blog Posts\n\n### 1. Meta Title Specifications\n- **Length:**  \n  - Up to 60 characters (ideally 59–60 characters).\n- **Content Requirements:**  \n  - Must include the primary keyword within the first 30 characters.\n  - Incorporate the company name towards the end.\n  - Feature a clear call-to-action or unique value proposition.\n- **Formatting Requirements:**  \n  - Do not include labels such as \"Title:\" or any other extraneous prefixes.\n  - Avoid special characters (except for |, -, and () when necessary).\n  - Ensure natural keyword integration with no stuffing.\n\n### 2. Best Practices for Blog Posts\n- **Optimization Considerations:**  \n  - Use action verbs and, where appropriate, numbers to enhance appeal.\n  - Test for mobile display to ensure readability.\n  - Monitor CTR performance and update regularly as needed.\n  - Each meta title should be unique and reflective of the specific blog post’s content.\n- **Validation Checklist:**  \n  - Primary keyword is within the first 30 characters.  \n  - Output adheres to the blog-specific structure (no product page elements).  \n  - No labels or extraneous text (e.g., “Title:” or “Description:”).  \n  - Special characters are limited to |, -, and () only.\n\n### 3. Writing Process & Format\n- **Step-by-Step Approach:**  \n  1. **Review the Provided Data:**  \n     - Use the data given to you  above  as the basis for your meta title.\n  2. **Draft the Meta Title:**  \n     - Create a draft meta title that meets the length and formatting guidelines.\n  3. **Validate Against the Checklist:**  \n     - Ensure all criteria (length, keyword positioning, absence of labels/special characters, etc.) are met.\n- **Output Format:**  \n  - Provide the final meta title as a plain text string with no additional labels.\n\n\n## Final Deliverable\nSubmit a single, plain text meta title optimized for a blog post that meets all the guidelines above. Ensure that your output:\n- Is within 60 characters.\n- Contains the primary keyword early on.\n- Does not include unnecessary labels.\n- Is unique and compelling for a blog post audience.\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        860,
+        380
+      ],
+      "id": "17ac4465-834a-4371-b2cf-e9dc7bdf8ff9",
+      "name": "Meta Title Rewrtier"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=\n# SEO Blog Post Meta Description Optimization Brief\n\n## Objective\nGenerate an SEO-friendly meta description for a blog post that succinctly summarizes the post’s content and entices users to click. The meta description should comply with a character limit of up to 159 characters, adhere to specific guidelines, and avoid product page formatting rules and prohibited words.\n{{ $json.MainArticle }}\n## Guidelines for Blog Posts\n\n### 1. Meta Description Specifications\n- **Length:**  \n  - Up to 159 characters (ideally within the range of 159-160 characters).\n- **Content Requirements:**  \n  - Must include the primary keyword within the first 30 characters.\n  - Incorporate a clear call-to-action and a unique value proposition relevant to the blog post.\n- **Formatting Requirements:**  \n  - Do not include any introductory labels such as “Description:” or “Discover.”\n  - Avoid prohibited words: **Transform, Elevate, Enhance, ultimate**.\n  - Ensure natural keyword integration without stuffing.\n  - Special characters are restricted to |, -, and () only.\n\n### 2. Best Practices for Blog Posts\n- **Optimization Considerations:**  \n  - Use action verbs and numbers when relevant to increase appeal.\n  - Test for mobile display to ensure proper readability.\n  - Monitor CTR performance and update the meta description regularly.\n  - Each meta description should be unique and tailored to the specific blog post content.\n- **Validation Checklist:**  \n  - Primary keyword is placed within the first 30 characters.\n  - Adheres to the blog-specific structure with no product page elements.\n  - Excludes any labels or extraneous text.\n  - Contains only permitted special characters.\n\n### 3. Writing Process & Format\n- **Step-by-Step Approach:**  \n  1. **Review the Provided Data:**  \n     - Base your meta description on the data given in the data above.\n  2. **Draft the Meta Description:**  \n     - Create a draft that meets the length, keyword, and formatting guidelines.\n  3. **Validate Against the Checklist:**  \n     - Confirm that all criteria (length, keyword positioning, avoidance of prohibited words, etc.) are met.\n- **Output Format:**  \n  - Provide the final meta description as a plain text string without any labels or extra formatting.\n\n## Final Deliverable\nSubmit a single, plain text meta description optimized for a blog post that meets all the guidelines above. Ensure that your output:\n- Is within 159 characters.\n- Contains the primary keyword early on.\n- Does not include any unnecessary labels or prohibited words.\n- Is unique, compelling, and optimized for click-through performance.\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        880,
+        580
+      ],
+      "id": "c6be50aa-5a8a-4727-ab86-881769f31b8e",
+      "name": "Meta Description Writer"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get data from the Entity Extractor Agent node\nconst data = $input.all().map(item => {\n  return {\n    json: {\n      HTMLInfographicOrTable: item.json.output // Rename 'output' to 'entityExtractedText'\n    },\n    pairedItem: 0\n  };\n});\n\nreturn data;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1240,
+        780
+      ],
+      "id": "bc72165f-7841-473f-a898-f05eea046a7a",
+      "name": "HTML Infographic or Table"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        840,
+        900
+      ],
+      "id": "7e9294a2-5ed3-4fef-abb7-38fed03a7997",
+      "name": "OpenAI Chat Model8",
+      "credentials": {
+        "openAiApi": {
+          "id": "VMIZpnzkHuPAc1g5",
+          "name": "OpenAi account Mine "
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        820,
+        700
+      ],
+      "id": "8b933a0c-ad5f-453b-8ffe-160a2da726a2",
+      "name": "OpenAI Chat Model6",
+      "credentials": {
+        "openAiApi": {
+          "id": "VMIZpnzkHuPAc1g5",
+          "name": "OpenAi account Mine "
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        820,
+        520
+      ],
+      "id": "c0e4bf3d-d02d-441f-8645-59e3834375ac",
+      "name": "OpenAI Chat Model9",
+      "credentials": {
+        "openAiApi": {
+          "id": "VMIZpnzkHuPAc1g5",
+          "name": "OpenAi account Mine "
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => {\n  return {\n    json: {\n      MetaTitle: item.json.output\n    },\n    pairedItem: 0\n  };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1220,
+        380
+      ],
+      "id": "57d2da90-272f-4ec5-8393-99f89f6941d7",
+      "name": "Meta Title"
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => {\n  return {\n    json: {\n      description: item.json.output\n    },\n    pairedItem: 0\n  };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1220,
+        580
+      ],
+      "id": "13a6da20-2aa2-4bca-a2f0-091897fc0b48",
+      "name": "Meta Description"
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => {\n  return {\n    json: {\n      UpdatedArticle: item.json.output\n    },\n    pairedItem: 0\n  };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        620,
+        1000
+      ],
+      "id": "d9067813-eb60-4a20-a9b2-11a1dfa75327",
+      "name": "Updated Article1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Based off the data below create one of the following for this article \nHtml 5 inforgraphic with inline CSS\nor \nCreate an HTML 5 interacative table with inline CSS  if the article is more technical \n\n{{ $('FinalArticle').item.json.FinalArticle }}\n\n\n#rules \n- only use HTML no orher code \n- use the brand colours if you can {{ $('Google Sheets').item.json['Brand Colours '] }}\n- do not overly complicate it \n- use clear defined HTML so that the output is well structured for SEO\n- Try to integrate the main and slaient entites and keywords into the output\n- do not use these words in the content {{ $('Google Sheets').item.json['Forbidden words '] }}\nuse this to help  give you an idea of the search intent and who this content is for \nSearch intent {{ $('Merge').item.json.SERPSdata }}\nTarget audiance {{ $('Google Sheets').item.json['Target audience'] }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        880,
+        780
+      ],
+      "id": "3ddcdc9e-ee1c-4413-a21f-299752aa4138",
+      "name": "Table/Infographic"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        820,
+        1120
+      ],
+      "id": "b30bcc55-4f09-45d1-a401-b786fb271b02",
+      "name": "OpenAI Chat Model10",
+      "credentials": {
+        "openAiApi": {
+          "id": "VMIZpnzkHuPAc1g5",
+          "name": "OpenAi account Mine "
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "numberInputs": 5,
+        "options": {
+          "includeUnpaired": true
+        }
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        1340,
+        660
+      ],
+      "id": "6350aea4-fd37-4246-a69f-c55b584ef1d4",
+      "name": "Merge1",
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Given the following article content:\n\n{{ $('FinalArticle').item.json.FinalArticle }}\n\nGenerate a JSON object with the following structure:\n\n{\n  \"title\": \"<Insert article title>\",\n  \"main_image\": \"<Detailed prompt for generating an accurate and visually relevant main image for the full article>\",\n  \"article_image_1\": \"<Detailed image prompt based on the first major subheader>\",\n  \"article_image_2\": \"<Detailed image prompt based on the second major subheader>\",\n  \"article_image_3\": \"<Detailed image prompt based on the third major subheader>\"\n}\n\nGuidelines:\n- Each image prompt should be vivid, specific, and tailored to match the article’s tone and content.\n- Extract subheaders directly from the article to inform image prompts.\n- Ensure the main image prompt reflects the overarching theme and purpose of the article.\n- Output must be a valid JSON object with no surrounding explanation.\n- Use these brand colours in where you  can \n\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        880,
+        1000
+      ],
+      "id": "31d543af-85ce-4cef-ab4e-c935eeda73a0",
+      "name": "Image Prompts"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get data from the Entity Extractor Agent node\nconst data = $input.all().map(item => {\n  return {\n    json: {\n      ImagePrompts: item.json.output // Rename 'output' to 'entityExtractedText'\n    },\n    pairedItem: 0\n  };\n});\n\nreturn data;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1220,
+        1000
+      ],
+      "id": "701716bd-f778-4745-b00b-c8465ee23376",
+      "name": "ImagePrompts"
+    },
+    {
+      "parameters": {
+        "url": "https://api.scrapingdog.com/google/",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "api_key",
+              "value": "68161b4b0fea05ac6fcacc69"
+            },
+            {
+              "name": "query",
+              "value": "={{ $json['Main Article Keywords : '] }}"
+            },
+            {
+              "name": "results",
+              "value": "10"
+            },
+            {
+              "name": "country",
+              "value": "United Kingdom"
+            },
+            {
+              "name": "page",
+              "value": "0"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -700,
+        380
+      ],
+      "id": "d5f000cb-9251-4531-a4f1-23539310a140",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=# Keyword Target:\n{{ $('SplitInBatches').item.json['Main Article Keywords : '] }}\n\n## SERP Data:\n{{ $json.organic_results }}\n\n## Related Searches:\n{{ $json.relatedSearches }}\n\n## Objective:\nAnalyze the provided SERP landscape and return the following insights in **structured JSON format** to guide AI article creation.\n\nYou must analyze each result's title, subheaders, and structure to classify it into one of the following common blog article types:\n\n- How-To/Tutorial  \n- Listicle  \n- Product Review  \n- Comparison  \n- FAQ  \n- Case Study  \n- Curated Resource  \n- Roundup  \n- Definition/Explainer  \n- News/Announcement  \n- Checklist/Cheat Sheet  \n- Template/Downloadable  \n- Interview  \n- Opinion/Thought Leadership\n\nFrom this classification, extract:\n\n- The **dominant article format** (`ArticleTypeDetected`)\n- A **count-based breakdown** (`ContentTypeDistribution`)\n- Evidence examples with reasoning (`ArticleTypeEvidence`)\n- A suggested format and structural strategy (`RecommendedFormatStrategy`) based on gaps or dominance\n\nReturn a **single JSON object** structured as follows.\n\n---\n\n### 🧩 Title Style Guide by Article Type\n\n- **How-To/Tutorial:** “How to…” or “A Guide to…”  \n- **Listicle:** “[#] Ways/Tips to…”  \n- **Product Review:** “[Product] Review: Is It Worth It?”  \n- **Comparison:** “[X] vs. [Y]: Which Is Better?”  \n- **Definition/Explainer:** “What Is…” or “Understanding…”  \n- **Case Study:** “How We [Result]: A Case Study”  \n- **Curated Resource:** “Best [Tools/Tips] for…”  \n- **FAQ:** “FAQs About…” or “Everything You Need to Know About…”  \n- **Interview:** “Expert Interview: [Name] on…”  \n- **Opinion/Thought Leadership:** Bold statement or thesis, e.g., “Why [X] Is the Future of [Y]”\n\n---\n\n### 🧭 Title Optimization Guideline (Universal for All Formats)\n\nWhen generating the `ArticleTitle`, follow these rules:\n\n- **Generate it last**, after all other fields, to use the full context\n- **Match the article format** (`ArticleTypeDetected`) and align with `RecommendedFormatStrategy`\n- **Reflect the user's SearchIntent** — show what the reader will learn, do, or solve\n- **Use strong, specific language** — verbs like “Manage,” “Avoid,” “Boost,” “Choose,” etc.\n- **Avoid vague filler** like “Insights” or “Understanding” unless format is an explainer\n- **Stay under 70 characters** when possible\n- **Format the title** according to type (see guide above)\n\n---\n\n### Return this JSON object:\n\n```json\n{\n  \"ArticleTitle\": \"[SEO-optimized title generated last]\",\n  \"SearchIntent\": \"[User's underlying goal with this query]\",\n  \"TargetAudience\": \"[Who is searching and why — contextually described]\",\n  \"ArticleLength\": \"[Suggested word count]\",\n  \"ContentPersona\": \"[e.g., 'a vet explaining behaviors to new cat owners']\",\n  \"WritingStyle\": \"[e.g., Blog, How-To Guide, Editorial]\",\n  \"ToneOfVoice\": \"[e.g., Informative, Friendly, Professional]\",\n  \"ArticleComplexity\": \"[Beginner, Intermediate, Advanced]\",\n  \"TechnicalLevel\": \"[Non-technical, Moderate, Highly technical]\",\n  \"ArticleTypeDetected\": \"[Most prevalent blog article format based on SERP]\",\n  \"ArticleTypeEvidence\": [\n    {\n      \"title\": \"[SERP result title]\",\n      \"matchedType\": \"[e.g., Listicle, Tutorial, Review]\",\n      \"structuralClues\": \"[Keywords in title, subheaders, or structure used]\"\n    }\n  ],\n  \"ContentTopics\": [\n    \"[topic 1]\",\n    \"[topic 2]\",\n    \"[topic 3]\"\n  ],\n  \"KeywordsToInclude\": [\n    \"[semantic and intent-rich keywords for SEO]\"\n  ],\n  \"RelatedKeywordsUsed\": [\n    {\n      \"keyword\": \"[relatedSearch term]\",\n      \"source\": \"relatedSearches\"\n    },\n    {\n      \"keyword\": \"[relatedSearch term]\",\n      \"source\": \"relatedSearches\"\n    }\n  ],\n  \"SuggestedSections\": [\n    \"1. [Suggested heading]\",\n    \"2. [Suggested heading]\",\n    \"3. [Suggested heading]\"\n  ],\n  \"SERPInsights\": {\n    \"DomainFrequency\": {\n      \"reddit.com\": 2,\n      \"quora.com\": 3,\n      \"youtube.com\": 1,\n      \"others\": {\n        \"preventivevet.com\": 1,\n        \"khpet.com\": 1,\n        \"feliway.co.uk\": 1\n      }\n    },\n    \"TopDomains\": [\n      \"[List of domains ranked in top 3]\"\n    ],\n    \"CommunityContentPresence\": true,\n    \"YouTubePresence\": true,\n    \"QuestionBasedTitles\": 5,\n    \"DeclarativeTitles\": 4,\n    \"ContentFormatsDetected\": [\n      \"Q&A\",\n      \"Discussion\",\n      \"Informational Guide\",\n      \"Blog Article\"\n    ],\n    \"ContentTypeDistribution\": {\n      \"HowTo\": 3,\n      \"Listicle\": 2,\n      \"Definition\": 1,\n      \"ProductReview\": 1,\n      \"CaseStudy\": 0,\n      \"Comparison\": 1,\n      \"News\": 0,\n      \"FAQ\": 0,\n      \"Interview\": 0,\n      \"Opinion\": 1\n    },\n    \"ContentFreshness\": {\n      \"RecentArticles\": 3,\n      \"OlderThan2Years\": 4\n    },\n    \"OpportunityInsights\": {\n      \"MissingFormats\": [\n        \"Expert-backed article\",\n        \"Infographic\",\n        \"How-To Video\"\n      ],\n      \"UnderservedIntent\": [\n        {\n          \"intent\": \"Indoor cat behaviors\",\n          \"missedBy\": [\"reddit.com\", \"quora.com\"]\n        },\n        {\n          \"intent\": \"Safety concerns for apartment cats\",\n          \"missedBy\": [\"feliway.co.uk\", \"khpet.com\"]\n        }\n      ]\n    },\n    \"RecommendedFormatStrategy\": {\n      \"type\": \"[e.g., 'How-To with embedded visuals']\", \n      \"reason\": \"While tutorials dominate, enhancing with visuals related to cats' nighttime behavior can engage and inform better.\"\n    }\n  }\n}\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -460,
+        380
+      ],
+      "id": "8e0c0fd6-9e73-460c-a8c5-b65f8ab752a8",
+      "name": "SERPs Data1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Assume input is in the format: [{ output: \"```json\\n{...}\\n```\" }]\nconst raw = items[0].json.output;\n\n// Extract and clean the JSON block\nconst jsonString = raw.replace(/^```json\\n/, \"\").replace(/\\n```$/, \"\");\nconst data = JSON.parse(jsonString);\n\n// Flatten top-level fields\nconst result = {\n  ArticleTitle: data.ArticleTitle,\n  SearchIntent: data.SearchIntent,\n  TargetAudience: data.TargetAudience,\n  ArticleLength: data.ArticleLength,\n  ContentPersona: data.ContentPersona,\n  WritingStyle: data.WritingStyle,\n  ToneOfVoice: data.ToneOfVoice,\n  ArticleComplexity: data.ArticleComplexity,\n  TechnicalLevel: data.TechnicalLevel,\n  ArticleTypeDetected: data.ArticleTypeDetected,\n  ContentTopics: data.ContentTopics.join(\"; \"),\n  KeywordsToInclude: data.KeywordsToInclude.join(\"; \"),\n  RelatedKeywordsUsed: data.RelatedKeywordsUsed.map(k => k.keyword).join(\"; \"),\n  SuggestedSections: data.SuggestedSections.join(\"; \")\n};\n\n// Flatten ArticleTypeEvidence\nresult.ArticleTypeEvidence = data.ArticleTypeEvidence\n  .map(e => `${e.title} => ${e.matchedType} [${e.structuralClues}]`)\n  .join(\"; \");\n\n// Flatten SERPInsights subfields\nconst insights = data.SERPInsights;\nresult.DomainFrequency = JSON.stringify(insights.DomainFrequency);\nresult.TopDomains = insights.TopDomains.join(\"; \");\nresult.CommunityContentPresence = insights.CommunityContentPresence;\nresult.YouTubePresence = insights.YouTubePresence;\nresult.QuestionBasedTitles = insights.QuestionBasedTitles;\nresult.DeclarativeTitles = insights.DeclarativeTitles;\nresult.ContentFormatsDetected = insights.ContentFormatsDetected.join(\"; \");\nresult.ContentTypeDistribution = JSON.stringify(insights.ContentTypeDistribution);\nresult.ContentFreshness_RecentArticles = insights.ContentFreshness.RecentArticles;\nresult.ContentFreshness_OlderThan2Years = insights.ContentFreshness.OlderThan2Years;\nresult.MissingFormats = insights.OpportunityInsights.MissingFormats.join(\"; \");\nresult.UnderservedIntent = insights.OpportunityInsights.UnderservedIntent\n  .map(i => `${i.intent} (missed by: ${i.missedBy.join(\", \")})`)\n  .join(\"; \");\nresult.RecommendedFormatType = insights.RecommendedFormatStrategy.type;\nresult.RecommendedFormatReason = insights.RecommendedFormatStrategy.reason;\n\n// Return as single row\nreturn [{ json: result }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -140,
+        380
+      ],
+      "id": "fed19e73-02ed-474e-8f4b-366f0f0c596a",
+      "name": "SERPSdata1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -520,
+        460
+      ],
+      "id": "0a160e96-ed19-4528-8b10-faf7092fdba1",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "VMIZpnzkHuPAc1g5",
+          "name": "OpenAi account Mine "
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "                      ## Starter",
+        "height": 1000,
+        "width": 400,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -960,
+        240
+      ],
+      "typeVersion": 1,
+      "id": "7ceee779-fd09-4f0e-ae9b-2fb9a75ef4d7",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "                         ## Content Creation ",
+        "height": 1000,
+        "width": 640,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        120,
+        240
+      ],
+      "typeVersion": 1,
+      "id": "0141fb2a-4095-4e4e-a3ec-f676e5e93ba9",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "                       ## Background Data ",
+        "height": 1000,
+        "width": 640,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -540,
+        240
+      ],
+      "typeVersion": 1,
+      "id": "db1cc7ce-9882-4f04-9520-1cc1e7220433",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "                             ## Matadata & Accessories",
+        "height": 1000,
+        "width": 760,
+        "color": 2
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        780,
+        240
+      ],
+      "typeVersion": 1,
+      "id": "3aaaa5d7-caf9-4018-b036-900fc11d0d8b",
+      "name": "Sticky Note4"
+    }
+  ],
+  "connections": {
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "SplitInBatches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Entitiy Extractor Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Data Research Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Entitiy Extractor Agent": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data Research Agent": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Article structure prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SplitInBatches": {
+      "main": [
+        [
+          {
+            "node": "Entitiy Extractor Agent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Data Research Agent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Article structure prompt",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Article structure prompt": {
+      "main": [
+        [
+          {
+            "node": "Article Structure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Article Body Writer": {
+      "main": [
+        [
+          {
+            "node": "FinalArticle",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Article Body Writer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Quality Feedback",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets1": {
+      "main": [
+        [
+          {
+            "node": "SplitInBatches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model5": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Updated Article",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Quality Feedback": {
+      "main": [
+        [
+          {
+            "node": "ArticlelAsessment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Updated Article": {
+      "main": [
+        [
+          {
+            "node": "Updated Article1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Article Structure": {
+      "main": [
+        [
+          {
+            "node": "Article Body Writer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FinalArticle": {
+      "main": [
+        [
+          {
+            "node": "Quality Feedback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ArticlelAsessment": {
+      "main": [
+        [
+          {
+            "node": "Updated Article",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Meta Title Rewrtier": {
+      "main": [
+        [
+          {
+            "node": "Meta Title",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Meta Description Writer": {
+      "main": [
+        [
+          {
+            "node": "Meta Description",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML Infographic or Table": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model8": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Table/Infographic",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model6": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Meta Description Writer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model9": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Meta Title Rewrtier",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Meta Title": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Meta Description": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Updated Article1": {
+      "main": [
+        [
+          {
+            "node": "Meta Title Rewrtier",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Meta Description Writer",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Table/Infographic",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Image Prompts",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Table/Infographic": {
+      "main": [
+        [
+          {
+            "node": "HTML Infographic or Table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model10": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Image Prompts",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image Prompts": {
+      "main": [
+        [
+          {
+            "node": "ImagePrompts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ImagePrompts": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 4
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "SERPs Data1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SERPs Data1": {
+      "main": [
+        [
+          {
+            "node": "SERPSdata1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SERPSdata1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "SERPs Data1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ecf8f5a367a053b31a916eab7d52753441c1335d50da9cd94c91e52b4e43163f"
+  }
+}

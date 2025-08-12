@@ -1,0 +1,1149 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1iLlBVA96MC2FTlY2qx6llLKuvRaVVOu0_urnjSZNFAA",
+          "mode": "list",
+          "cachedResultName": " Category page rewriter with Keywords ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1iLlBVA96MC2FTlY2qx6llLKuvRaVVOu0_urnjSZNFAA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Category URLS ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1iLlBVA96MC2FTlY2qx6llLKuvRaVVOu0_urnjSZNFAA/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -720,
+        -80
+      ],
+      "id": "bcfd26d9-723f-4daf-a3a1-c7c5b03cf5df",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "oyhduPdBw1ea9W4y",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "batchSize": 1,
+        "options": {
+          "reset": false
+        }
+      },
+      "name": "SplitInBatches",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        -580,
+        -80
+      ],
+      "typeVersion": 1,
+      "id": "ae6055a7-1441-40d7-8004-763b2897eb05"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Helper function to extract specific tags using regex\nconst extractTagContent = (html, tag) => {\n  const regex = new RegExp(`<${tag}[^>]*>(.*?)</${tag}>`, 'gi');\n  const matches = html.match(regex) || [];\n  return matches.map(match => match.replace(/<[^>]*>/g, '').trim());\n};\n\n// Helper function to extract meta tags\nconst extractMetaContent = (html, metaName) => {\n  const regex = new RegExp(`<meta name=[\"']${metaName}[\"'] content=[\"'](.*?)[\"']`, 'i');\n  const match = html.match(regex);\n  return match ? match[1] : 'Not Found';\n};\n\n// Main processing function\nconst processItem = (item) => {\n  const rawHtml = item.json.data; // Access raw HTML from \"data\" key\n  \n  if (!rawHtml) {\n    throw new Error('No HTML content found in input data.');\n  }\n\n  return {\n    metaTitle: extractTagContent(rawHtml, 'title')[0] || 'Not Found',\n    metaDescription: extractMetaContent(rawHtml, 'description'),\n    h1Heading: extractTagContent(rawHtml, 'h1')[0] || 'Not Found',\n    h2Headings: extractTagContent(rawHtml, 'h2'),\n    h3Headings: extractTagContent(rawHtml, 'h3'),\n  };\n};\n\n// Process all items\nreturn items.map(processItem);\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -200,
+        -240
+      ],
+      "id": "8ed16ad6-cd89-4ec0-a211-94f408a6ee05",
+      "name": "Meta Extractor",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -40,
+        -200
+      ],
+      "id": "3263763d-6632-42aa-aec6-54c47c2a1c3d",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "VMIZpnzkHuPAc1g5",
+          "name": "OpenAi account Mine "
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        340
+      ],
+      "id": "4ec5d303-fb1b-4740-a98a-95366e0f4ac4",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "VMIZpnzkHuPAc1g5",
+          "name": "OpenAi account Mine "
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "perplexity/sonar",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        20,
+        40
+      ],
+      "id": "3978847e-a2e1-4e4c-b8d9-5ade8199afb2",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "Fpdp3uXrN0vUevHD",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=### Role  \nYou are an experienced Ecommerse Category page SEO specialist.\nUse the category data below to do the following tasks\n\n### Category page Data  \n- Meta Title: `{{ $json.metaTitle }}`  \n- Meta Description: `{{ $json.metaDescription }}`  \n- Product Title (H1): `{{ $json.h1Heading }}`  \n- Subheaders (H2): `{{ $json.h2Headings }}`\n- Subheaders  (H3): `{{ $json.h3Headings }}`\n### Tasks  \n1. **Technical Analysis**  \n   - Extract the most frequent terms and explain your reasoning.  \n   - Estimate semantic similarity between the inputs and common search patterns (e.g., via term co‑occurrence) and describe your method.  \n   - Identify key factual data points.  \n   - Generate a term‑frequency matrix.  \n\n2. **Intent Analysis**  \n   - Determine the likely user intent and search context.  \n   - Analyze semantic relationships and common query patterns.  \n   - Explain your reasoning for each conclusion.  \n\n### Output Requirements  \nReturn a single JSON object with the following structure:\n\n```json\n{\n  \"technicalData\": [\n    { \"term\": \"string\", \"score\": number },\n    ...\n  ],\n  \"intentAnalysis\": \"string\",\n  \"relatedTerms\": [\"string\", ...]\n}\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        100,
+        -80
+      ],
+      "id": "a3109c26-ddb7-4434-80c9-e9a3a2345d0b",
+      "name": "Data Research Agent",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        860,
+        -240
+      ],
+      "id": "be15af46-5c43-4f37-9e54-632aedc966af",
+      "name": "OpenAI Chat Model2",
+      "credentials": {
+        "openAiApi": {
+          "id": "VMIZpnzkHuPAc1g5",
+          "name": "OpenAi account Mine "
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "numberInputs": 3,
+        "options": {
+          "includeUnpaired": true
+        }
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        2380,
+        300
+      ],
+      "id": "6c9461bc-f24e-40e0-81bf-e4fa2aa42b80",
+      "name": "Merge1",
+      "alwaysOutputData": true,
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1iLlBVA96MC2FTlY2qx6llLKuvRaVVOu0_urnjSZNFAA",
+          "mode": "list",
+          "cachedResultName": " Category page rewriter with Keywords ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1iLlBVA96MC2FTlY2qx6llLKuvRaVVOu0_urnjSZNFAA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2091559442,
+          "mode": "list",
+          "cachedResultName": "Rewritten Categories ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1iLlBVA96MC2FTlY2qx6llLKuvRaVVOu0_urnjSZNFAA/edit#gid=2091559442"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Product URL ": "={{ $('SplitInBatches').item.json['URLS '] }}",
+            "Description ": "={{ $json.description }}",
+            "Title Tag": "={{ $json.title }}",
+            "Rewritten Category -  Markdown ": "={{ $json.CategoryPageFinalOutput }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Product URL ",
+              "displayName": "Product URL ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Title Tag",
+              "displayName": "Title Tag",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Description ",
+              "displayName": "Description ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Rewritten Category -  Markdown ",
+              "displayName": "Rewritten Category -  Markdown ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Rewritten Category  HTML ",
+              "displayName": "Rewritten Category  HTML ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2580,
+        500
+      ],
+      "id": "c70e7c61-d4a4-4b64-86c2-5f4cf11d193d",
+      "name": "Google Sheets1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "oyhduPdBw1ea9W4y",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "numberInputs": 3,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3,
+      "position": [
+        640,
+        -80
+      ],
+      "id": "619241a6-8c2e-4ac1-86ed-85f186c8bc93",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1620,
+        20
+      ],
+      "id": "4d8a4f79-72ee-4060-864f-920c04c0288f",
+      "name": "OpenAI Chat Model3",
+      "credentials": {
+        "openAiApi": {
+          "id": "VMIZpnzkHuPAc1g5",
+          "name": "OpenAi account Mine "
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => {\n  return {\n    json: {\n      description: item.json.output\n    },\n    pairedItem: 0\n  };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1920,
+        80
+      ],
+      "id": "957d7d41-57cf-4818-985d-848dbbbfd1a2",
+      "name": "Meta Description Extractor"
+    },
+    {
+      "parameters": {
+        "jsCode": "return items.map(item => {\n  return {\n    json: {\n      title: item.json.output\n    },\n    pairedItem: 0\n  };\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1900,
+        -120
+      ],
+      "id": "460f3afc-9c04-4214-b8e3-b5f0b030f600",
+      "name": "Meta Title Extractor"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Process product descriptions and format them to clean, structured markdown\nfor (const item of $input.all()) {\n  let productText = item[\"Final Product Page\"];\n  \n  if (productText && typeof productText === 'string') {\n    // Step 1: If this is a JSON string, parse it\n    if (productText.startsWith('\"') && productText.endsWith('\"')) {\n      try {\n        productText = JSON.parse(productText);\n      } catch (e) {\n        // Manual cleanup if JSON parsing fails\n        productText = productText\n          .substring(1, productText.length - 1)\n          .replace(/\\\\n/g, \"\\n\")\n          .replace(/\\\\\"/g, '\"')\n          .replace(/\\\\\\\\/g, \"\\\\\");\n      }\n    }\n    \n    // Step 2: Create a new field with HTML representation for display\n    // This will allow n8n to show it properly instead of the escaped version\n    const htmlOutput = productText\n      .replace(/\\n/g, \"<br>\")                 // Convert newlines to HTML breaks\n      .replace(/## (.*?)$/gm, \"<h2>$1</h2>\")  // Format h2 headings\n      .replace(/### (.*?)$/gm, \"<h3>$1</h3>\") // Format h3 headings\n      .replace(/\\*\\*(.*?)\\*\\*/g, \"<strong>$1</strong>\") // Bold text\n      .replace(/- (.*?)$/gm, \"• $1<br>\")      // Format bullet points\n      .replace(/  /g, \"&nbsp;&nbsp;\");        // Preserve spaces\n      \n    // Add a new field for the HTML view\n    item[\"Product Page HTML\"] = htmlOutput;\n    \n    // Also keep a clean markdown version with proper newlines\n    item[\"Clean Markdown\"] = productText;\n    \n    // Step 3: Update the original field with the cleaned text \n    // (this will still show as JSON in n8n's interface)\n    item[\"Final Product Page\"] = productText;\n  }\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1320,
+        340
+      ],
+      "id": "ec74a646-84d6-43e7-ac6f-31a59c803cef",
+      "name": "Markdown Formatting"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json['URLS '] }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -420,
+        -80
+      ],
+      "id": "80a59c4b-f8b3-4081-b3af-ddc0c0455d71",
+      "name": "HTTP Request1",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1EkNLyK0giO_KOm70UPz4JZE26HGYYNTbx9JeAaK2klw",
+          "mode": "list",
+          "cachedResultName": "product URLS ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1EkNLyK0giO_KOm70UPz4JZE26HGYYNTbx9JeAaK2klw/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1053389032,
+          "mode": "list",
+          "cachedResultName": "404 URLS",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1EkNLyK0giO_KOm70UPz4JZE26HGYYNTbx9JeAaK2klw/edit#gid=1053389032"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [
+            "404 URLS "
+          ],
+          "schema": [
+            {
+              "id": "404 URLS ",
+              "displayName": "404 URLS ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        -180,
+        100
+      ],
+      "id": "7f03a3fc-aecd-4db4-af8a-d83e4bc5880e",
+      "name": "Google Sheets3",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "oyhduPdBw1ea9W4y",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "html": "={{ $json.data }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.markdown",
+      "typeVersion": 1,
+      "position": [
+        -200,
+        -80
+      ],
+      "id": "9649b690-ee08-44c7-83a2-4baae59307ce",
+      "name": "Markdown",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1540,
+        260
+      ],
+      "id": "48c2f557-3df7-49aa-abc9-3a637604fb2d",
+      "name": "OpenAI Chat Model4",
+      "credentials": {
+        "openAiApi": {
+          "id": "VMIZpnzkHuPAc1g5",
+          "name": "OpenAi account Mine "
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Use this Data below to:\n{{ $json.CategoryPageFinalOutput }}\nGenerate an SEO-friendly Category page meta title (up to 60 characters) that sucinctly  summarises the page’s content and entices users to click.\nplease use  these rules\n# Metadata Optimization Rules\n###DONT USE Title: in the output \n\n## Title Rules\n{INSTRUCTIONS}\nTitle:[## Max output: 59 characters !important] \n###[DO NOT ADD : Title:]\n{/INSTRUCTIONS}\n\n\n**Product Pages**\nTitle: {Brand} {Product Name} - {Key Spec/Feature} | {Category Name}\n\n\n**Character Limits**\nTitles: 59-60 characters\n\n\n**Must Include**\n- Primary keyword in first half of title\n- Company name in title (usually at end)\n- Clear call-to-action in description\n- Unique value proposition per page\n\n**Must Avoid**\n- **Title:** in the meta title output \n- **Description:** in the meta description out put \n- Special characters (except | - and ())\n- Generic descriptions\n- Truncated content\n\n**Best Practices**\n- Use action verbs\n- Include numbers when relevant\n- Test mobile display\n- Monitor CTR performance\n- Regular content updates\n- Natural keyword placement\n- Unique metadata per page variant\n\n\n**[Validation Checklist]**  \n☑ Primary keyword in first 30 characters  \n☑ Natural keyword integration (no stuffing)  \n☑ Page-type-specific structure applied  \n☑ Zero special characters except | - ()  ",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        1500,
+        -140
+      ],
+      "id": "f757272d-43a7-4aed-9888-242c36848879",
+      "name": "Meta Title Rewrtier"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get data from the Entity Extractor Agent node\nconst data = $input.all().map(item => {\n  return {\n    json: {\n      entityExtractedText: item.json.output // Rename 'output' to 'entityExtractedText'\n    },\n    pairedItem: 0\n  };\n});\n\nreturn data;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        420,
+        -260
+      ],
+      "id": "02994549-29a5-4d4c-aaa0-98e67d5a7f81",
+      "name": "entityExtractedText"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Rename 'output' to 'productSummariser'\nconst data = $input.all().map(item => {\n  return {\n    json: {\n      productSummariser: item.json.output\n    },\n    pairedItem: 0\n  };\n});\n\nreturn data;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        420,
+        100
+      ],
+      "id": "b4ec1df3-84e6-4e6e-b2cb-f3f4a544f5cc",
+      "name": "productSummariser"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Rename 'output' to 'dataResearchText'\nconst data = $input.all().map(item => {\n  return {\n    json: {\n      dataResearchText: item.json.output\n    },\n    pairedItem: 0\n  };\n});\n\nreturn data;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        420,
+        -80
+      ],
+      "id": "cbd011bb-735d-4e17-bb5b-e11434ec503a",
+      "name": "dataResearchText"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Use this Data below to:\n{{ $json.CategoryPageFinalOutput }}\n\nGenerate an SEO-friendly Category page meta Description (up to 159 characters) that sucinctly  summarises the page’s content and entices users to click.\nplease use  these rules\n# Metadata Optimization Rules\n###DONT USE Descrption: in the output \n### DO NOT USE THE FOLLOWING WORDS\n- Transform \n- Elevate\n- Enhance \n- ultimate \n\n## Meta Description Rules\n{INSTRUCTIONS}\nDescription:[## Max output:159 characters !important]\n###[DO NOT ADD : Description,Discover]\n{/INSTRUCTIONS}\n\n\n**Product Pages**\nTitle: {Brand} {Product Name} - {Key Spec/Feature} | {Category Name}\nDescription: {Product Name} + {Key Features} + {Primary Benefit} + {Purchase Incentive Or Call To Action}\n\n\n**Character Limits**\nTitles: 135-159 characters\nDescriptions: 159-160 characters\n\n**Must Include**\n- Primary keyword in first half of title\n- Company name in title (usually at end)\n- Clear call-to-action in description\n- Unique value proposition per page\n\n**Must Avoid**\n- **Title:** in the meta title output \n- **Description:** in the meta description out put \n- Special characters (except | - and ())\n- Generic descriptions\n- Truncated content\n\n**Best Practices**\n- Use action verbs\n- Include numbers when relevant\n- Test mobile display\n- Monitor CTR performance\n- Regular content updates\n- Natural keyword placement\n- Unique metadata per page variant\n\n\n**[Validation Checklist]**  \n☑ Primary keyword in first 30 characters  \n☑ Natural keyword integration (no stuffing)  \n☑ Page-type-specific structure applied  \n☑ Zero special characters except | - ()  ",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        1520,
+        100
+      ],
+      "id": "2a43434d-b2fd-4a1f-9b5e-a0b4b06de0df",
+      "name": "Meta Description Rewriter"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an **e‑commerce SEO specialist**.  \nUse this Category Page data below \nCategory Page URL:{{ $('SplitInBatches').item.json['URLS '] }}\n**Title:** `{{ $json.metaTitle }}`  \n**H1 heading:** `{{ $json.h1Heading }}`  \n**H2 headings:** `{{ $json.h2Headings }}`  \n**H3 headings:** `{{ $json.h3Headings }}`  \nPerform the following and **return a single JSON** with these keys:\n\n```json\n{\n  \"aspects\": [...],\n  \"entities\": [...],\n  \"synonyms\": [...],\n  \"antonyms\": [...],\n  \"holonymy\": [...],\n  \"keywords\": [...],\n  \"longTailKeywords\": [...],\n  \"lsiKeywords\": [...],\n  \"relatedTopics\": [...],\n  \"approach\": \"Brief summary of your method\"\n}\naspects (10): product features or attributes\n\nentities (10): salient nouns\n\nsynonyms (5): similar terms to the core concept\n\nantonyms (5): opposites of the core concept\n\nholonymy (2): wholes that include this product\n\nkeywords (10): high‑value single keywords\n\nlongTailKeywords (10): e‑commerce‑style long tails\n\nlsiKeywords (5): latent‑semantic terms\n\nrelatedTopics (2): semantically related subjects\n\nKeep your output concise and exact.\n\n\n\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        100,
+        -300
+      ],
+      "id": "1cf04c67-cb04-46d1-b0f9-77f3d416bfc7",
+      "name": "Category Entitiy Extractor Agent"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=**Category Page Generation Prompt**\n\nUse these inputs for your content:  \n- `{{ $json.entityExtractedText }}`  \n- `{{ $json.dataResearchText }}`  \n- `{{ $json.productSummariser }}`  \n- `{{ $('Google Sheets').item.json['Keywords to add '] }}`\n---  \n\n**Task:**  \nYou are an expert e-commerce copywriter. Generate an SEO-optimized, engaging **category page** in Markdown that follows all guidelines below.\n\n---\n\n## 1. Structure & Sections\n\n1. **H1 Heading**  \n   - Include the **primary keyword** FROM THIS DATA : `{{ $json.entityExtractedText }}`  \n   - One short, punchy line (no brand name; avoid “Category,” “Discover,” “Explore”)\n\n2. **Intro Paragraph** (2–3 sentences, appears above product listings)  \n   - Use the primary keyword once  \n   - Set context and lead directly into the product grid  \n   - Avoid banned phrases (“Experience,” “Discover,” “Dive into the world”)\n\n3. **Subsections** (5–6 total, below the product listings)  \n   - Each begins with a clear **## H2** (no “Introduction,” “Conclusion,” “Discover”)  \n   - Under each H2, write **120–180 words** that:  \n     - Bold 1–2 **key terms** or entities  \n     - Integrate at least one **stat or fact** from `dataResearchText`  \n     - Weave in a relevant **consumer insight** or **market trend**\n\n---\n\n## 2. SEO & Keywords\n\n- Get the **Primary keyword** from this DATA \n(`{{ $json.entityExtractedText }}`):  \n{{ $('Google Sheets').item.json['Keywords to add '] }}\n  - Must appear in H1, intro, and in at least two H2s  \n- **Secondary keywords** : {{ $('Google Sheets').item.json['Keywords to add '] }}sprinkle naturally in subheaders or body  \n- **Long-tail variants**: use in sections on product variations or buying tips  \n- ## (very Important) Make sure you are including these keywords - `{{ $('Google Sheets').item.json['Keywords to add '] }}`\n- Keep language natural—no keyword stuffing\n\n---\n\n## 3. Style & Tone\n\n- **Sentence length**: short and punchy (Hemingway style)  \n- **Voice**: active, minimal adverbs  \n- **Clarity**: vigorous wording (omit needless words)  \n- **Syntax**: use clear subject–predicate–object structures  \n- **Dualities**: describe features as pairs (e.g., “lightweight yet durable”)  \n- **Banned words/phrases**: exclude all items from the provided list\n\n---\n\n## 4. Extras & Format\n\n- **Length**: aim for **700–900 words** total  \n- **Factual accuracy**: verify specs via `productSummariser`  \n- **Call to action**: end with a persuasive line (e.g., “Browse our full range below to find your ideal …”)\n\n---\n\nProduce the full category page in **Markdown**—ready to drop into your site.  \n\n\n",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        940,
+        -360
+      ],
+      "id": "2702f2fc-348f-4942-8b29-5404a3a36f34",
+      "name": "Category Page Rewriter"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=# Category Page  Analysis Prompt\n\nYou are a **Ecommercerce Category Page Marketing Analyst**. Given a block of text describing the Category page   provide a structured analysis **in JSON format**.\n\n---\n\n## Input  \n\n{{ $json.data }}\n\n\n---\n\n## Instructions  \n\n1. **Main Summary**  \n   - Write **2–3 sentences** that capture the essence of the Categoy and its marketing angle.\n\n2. **Key Entities**  \n   - Extract all brand names, product features, materials, and other notable entities as an **array of strings**.\n\n3. **Sentiment Analysis**  \n   - Determine the overall sentiment: `\"positive\"`, `\"negative\"`, or `\"neutral\"`.  \n   - If the sentiment is ambiguous, choose `\"neutral\"` and set `\"uncertainty\": true`.\n\n4. **Niche / Category**  \n   - Identify the specific niche or category to which this product belongs.\n\n5. **Constraints**  \n   - **Do not** mention any prices.  \n   - Focus strictly on the main topic of the product description.\n\n---\n\n## Output Format  \n\nReturn **only** the following **valid JSON** object:\n\n\n{\n  \"main_summary\": \"Your 2–3 sentence summary here.\",\n  \"key_entities\": [ \"Entity 1\", \"Entity 2\", \"...\"],\n  \"sentiment\": \"positive|negative|neutral\",\n  \"uncertainty\": false,\n  \"niche\": \"Product niche or category here\"\n}\n\n\nEnsure the JSON includes all five fields exactly as specified, with no additional properties.\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        120,
+        120
+      ],
+      "id": "e0be6a03-f1a6-46d6-976c-f9dac00b5fb8",
+      "name": "Category Page  Summariser"
+    },
+    {
+      "parameters": {
+        "model": "anthropic/claude-sonnet-4",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        960,
+        380
+      ],
+      "id": "f718e165-2fb0-48ee-bae6-83d975c647cb",
+      "name": "OpenRouter Chat Model1",
+      "credentials": {
+        "openRouterApi": {
+          "id": "Fpdp3uXrN0vUevHD",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get data from the Entity Extractor Agent node\nconst data = $input.all().map(item => {\n  return {\n    json: {\n      CategoryPageFeedback: item.json.output // Rename 'output' to 'entityExtractedText'\n    },\n    pairedItem: 0\n  };\n});\n\nreturn data;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1300,
+        -120
+      ],
+      "id": "7f0d5396-da00-46a8-a487-68b8ee63ecbb",
+      "name": "CategoryPageFeedback",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        860,
+        -20
+      ],
+      "id": "cb6e4953-bd31-47f7-9891-65e9996650c4",
+      "name": "OpenAI Chat Model5",
+      "credentials": {
+        "openAiApi": {
+          "id": "VMIZpnzkHuPAc1g5",
+          "name": "OpenAi account Mine "
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4.1-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        580,
+        460
+      ],
+      "id": "d6711a4c-9872-43eb-b89c-b8961943698f",
+      "name": "OpenAI Chat Model6",
+      "credentials": {
+        "openAiApi": {
+          "id": "VMIZpnzkHuPAc1g5",
+          "name": "OpenAi account Mine "
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an e-commerce UX & SEO auditor.  \nYour task is to evaluate a draft category-page copy against both the **Prompt Compliance** and the **Comprehensive Best-Practice Factors** outlined below.\n {{ $json.CategoryPageDraft }}\n---\n\n## Inputs  \n1. The **draft output** (Markdown)  \n2. The **original Category Page Prompt** (for structural rules)  \n3. Your **Comprehensive Guide** (SEO standards, UX, Visual/Structural, Tone, Additional)\n\n---\n\n## 1. Prompt Compliance (Pass/Fail)\n\n- Structure & Sections (H1, intro, 5–6 H2s, technical specs, CTA)  \n- SEO & Keywords (primary in H1/intro/2 H2s, secondary sprinkled, no stuffing)  \n- Research Integration (bolded terms, stats, insights under the right H2)  \n- Style & Tone (Hemingway, active voice, dualities, banned words)  \n- Length & Format (700–900 words, Markdown, metric units)\n\n---\n\n## 2. Comprehensive Best-Practice Factors (Score 1–5)\n\n1. **Navigation & Findability**  \n   - Clear, logical menu cues or subcategory links  \n   - Breadcrumbs/path context  \n\n2. **Filtering & Sorting Readiness**  \n   - Mentions or placeholders for facets and sort options  \n   - Hints at multi-select filtering  \n\n3. **Product Discovery & CTAs**  \n   - “Quick add,” “View details,” or compare/wishlist cues  \n   - Persuasive, action-oriented CTAs  \n\n4. **Performance & Mobile UX**  \n   - References to load-speed optimizations, lazy-load hints  \n   - Mobile-friendly layout notes (e.g. two-column grid)  \n\n5. **Visual/Structural Presentation**  \n   - Proper heading hierarchy (H1→H2→H3)  \n   - Scannable layout (whitespace, bullets, section breaks)  \n   - Image guidance (alt text, hover-state, banners)  \n\n6. **Tone & Wording**  \n   - Brand-appropriate, consistent voice  \n   - Clarity, no jargon, inclusive language  \n\n7. **Social Proof & Trust Signals**  \n   - Mentions of ratings, reviews, bestseller badges  \n   - Shipping/return assurances  \n\n8. **Supplementary Content**  \n   - FAQ or buying-guide hooks  \n   - Cross-links to related categories or collections  \n\n---\n\n## 3. Output\n\n- A **scorecard** with Pass/Fail on Prompt Compliance  \n- A **1–5 rating** for each Best-Practice factor  \n- **2–3 actionable recommendations** per area where the draft scores ≤ 3\n\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        980,
+        -120
+      ],
+      "id": "575568f8-2e1c-424b-914d-cc4b92b3c764",
+      "name": "Category page Feedback"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get data from the Entity Extractor Agent node\nconst data = $input.all().map(item => {\n  return {\n    json: {\n      CategoryPageDraft: item.json.output // Rename 'output' to 'entityExtractedText'\n    },\n    pairedItem: 0\n  };\n});\n\nreturn data;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1260,
+        -360
+      ],
+      "id": "15b6bb45-fe85-45f2-a6bc-36d00cbdb7d3",
+      "name": "CategoryPageDraft"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get data from the Entity Extractor Agent node\nconst data = $input.all().map(item => {\n  return {\n    json: {\n      CategoryPageFinalOutput: item.json.output // Rename 'output' to 'entityExtractedText'\n    },\n    pairedItem: 0\n  };\n});\n\nreturn data;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1300,
+        100
+      ],
+      "id": "865433bb-efa2-4098-a13b-5c3640e80403",
+      "name": "Category page Final output",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an expert UK-based copywriter tasked with **rewriting** a category-page draft for Ecomerchant to meet all editorial, SEO, tone, and brand requirements.\n\n---\n\n### 🔧 INPUTS\n\n- **Original draft** (Markdown):  \n  `{{ $('CategoryPageDraft').item.json.CategoryPageDraft }}`\n\n- **Data Sources**:  \n  - `{{ $('Merge').item.json.entityExtractedText }}`  \n  - `{{ $('Merge').item.json.dataResearchText }}`  \n  - `{{ $('Merge').item.json.productSummariser }}`\n\n- **Category Page Feedback**:  \n  `{{ $json.CategoryPageFeedback }}`\n\n---\n\n### ✍️ REWRITE BRIEF\n\nYou must rewrite the page in **UK English** using **plain, direct language** and avoiding all banned terms. Maintain alignment with Ecomerchant’s brand tone: calm, confident, factual, and helpful.\n\n#### 1. H1 Heading\n- One short, keyword-rich phrase.\n- Clearly state the **product category** (e.g., “Natural Insulation Materials”).\n- ✅ Match natural search terms.\n- ❌ Do **not** include branding, fluff, or banned terms like “Explore,” “Discover,” or “Category.”\n\n#### 2. Introduction\n- 2–3 short sentences above product listings.\n- Use the **primary keyword** naturally.\n- Do **not** use banned buzzwords or phrases.\n- Clarify purpose, scope, and benefits simply.\n\n#### 3. H2 Sections (6–7 below listings)\nEach H2 must:\n- Target a distinct **shopper concern, feature, or product type**.\n- Use **long-tail or secondary keywords** where possible.\n- Be written in **plain UK English**, active voice.\n- Avoid generic labels like “Introduction” or “Conclusion.”\n-Ensure each H2 addresses a different product type, use case, or buyer concern (e.g., cost, application, certification, performance).\n\nEach paragraph under an H2 must:\n- Be **150–200 words**.\n- Use short, declarative sentences.\n- Bold key terms.\n- Include a **specific statistic or trend** from ` `{{ $('Merge').item.json.dataResearchText }}`  `.\n- Reference a **product or feature** from `{{ $('Merge').item.json.productSummariser }}`.\n- Use any relevant terms from `{{ $('Merge').item.json.entityExtractedText }}` .\n\n#### 4. SEO Guidelines\n- Use the **primary keyword** in the H1, intro, and 2+ H2s.\n- Include **secondary keywords** and **natural language long-tails**.\n- Do **not** keyword stuff\n-Try to include at least one long-tail secondary keyword per H2 section (e.g., 'low carbon insulation for lofts\n\n#### 5. Tone, Style, Structure\n- Total word count: **750–1,000 words**\n- Use **UK English** spelling and units.\n- Avoid adverbs and vague qualifiers.\n- Use **semantic triples**, **short sentences**, and **active voice**.\n- Ensure clarity, consistency, and technical accuracy.\n\n\n#### 7. Final Call to Action\n- End with a **calm, directive, benefit-focused CTA**.\n- Do **not** use salesy or hype language.\n-CTA should frame a specific benefit to the user’s building goal (e.g., ‘build with confidence’ or ‘reduce long-term energy bills’\n\n---\n\n## keywords to integrate into the content \nplease make sure you integrate these keywords into the content if they are not already being used \n{{ $('Google Sheets').item.json['Keywords to add '] }}\n\n---\n\n### 🚫 DO NOT USE: BANNED WORDS\n\n**Replace these words/phrases with grounded alternatives**:\n\ndelve → examine, look into  \nelevate → improve, raise  \nunleash → enable, make available  \nunlock → access, gain  \nshowcase → present, highlight  \njourney → process, path  \nseamlessly → smoothly, without interruption  \ncraft → create, build  \ntapestry → collection, mix  \nrealm → area, field  \nfoster → support, encourage  \ngroundbreaking → new, original  \ncaptivating → interesting, engaging  \nempower → help, support  \nengage → interact with, connect with  \nfacilitate → make easier, support  \nharness → use, apply  \nleverage → use, take advantage of  \nsynergy/synergize → collaboration, working together  \nparadigm shift → change, new approach  \nrobust → strong, reliable  \nunprecedented → new, never seen before  \ninnovative → new, creative  \ndisruptive → transformative, challenging the norm  \nAI-driven → powered by AI, uses AI  \npivot → shift, change direction  \nactualize → achieve, make happen  \namplify → increase, boost  \narticulate → explain, express clearly  \naugment → enhance, improve  \nbeacon → example, guide  \nbenchmark → standard, reference point  \ncalibrate → adjust, tune  \ncaptivate → interest, hold attention  \nconsolidate → combine, merge  \ncontextualize → explain background  \ncorrelate → relate, connect  \nelucidate → explain, clarify  \nenvision → imagine, plan  \nevaluate → assess, review  \nexpound → describe, explain  \nextrapolate → estimate, infer  \nilluminate → clarify, shed light on  \nincubate → develop, nurture  \nintegral → essential, necessary  \nintricate/multifaceted → complex, detailed  \njuxtapose → compare, place side by side  \nkaleidoscope → variety, range  \nlinchpin → key part, essential element  \nmanifold → many, varied  \nmitigate → reduce, lessen  \nnuanced → subtle, detailed  \norchestrate → organise, coordinate  \npivotal → important, crucial  \nplethora → many, a lot  \nquantify → measure, count  \nrecalibrate → adjust, re-evaluate  \nrecapitulate → summarise, repeat briefly  \nretrofit → update, modify  \nscrutinize → inspect, examine closely  \nstrategize → plan, develop a strategy  \nsubstantiate → support with evidence  \nsynthesize → combine, put together  \ntailor → customise, adjust  \ntheorize → speculate, think through  \nthrive → succeed, grow  \ntraverse → cross, move through  \nunderpins → supports, is the basis of  \nunparalleled → unique, one of a kind  \nupgrade → improve, enhance  \nutilize → use, apply  \nvalidate → confirm, check  \nvast → large, wide  \nvigilance → alertness, care  \nvital → important, essential  \nwhimsical → playful, unusual  \n\n---\n\n### 🛑 BANNED PHRASES: Replace With\n\nin today’s world → now, currently  \nin today’s digital world → in the digital age  \nin today’s ever-evolving world → as trends shift  \nin the ever-evolving landscape of → in this changing area  \nit is crucial to recognise → it’s important to note  \nwhat sets X apart is → X is different because  \nmore than just a tool, X is a game-changer → X is a useful tool that can improve results  \nnot just a solution, but a revolution → a helpful change, a major improvement  \nbeyond simple efficiency, X transforms workflows → X improves how work gets done  \nplay a significant role in shaping → influence, affect  \naims to explore → looks at, tries to understand  \nin today’s fast-paced world → nowadays, with current trends  \nin conclusion → to sum up, overall  \nwe’ve got you covered → we provide what you need  \nwhen it comes to → about, regarding  \nfurthermore / moreover / in addition → also, plus  \non the other hand → alternatively, but  \nit might be the case → maybe, perhaps  \nit is often thought / one could argue → some believe\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        980,
+        100
+      ],
+      "id": "b088b5ad-194d-44eb-9cbe-baed7564c053",
+      "name": "Category Page Final Output"
+    }
+  ],
+  "connections": {
+    "Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "SplitInBatches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SplitInBatches": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Meta Extractor": {
+      "main": [
+        [
+          {
+            "node": "Category Entitiy Extractor Agent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Data Research Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Category Entitiy Extractor Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Category Page  Summariser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Data Research Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data Research Agent": {
+      "main": [
+        [
+          {
+            "node": "dataResearchText",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Category Page Rewriter",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets1": {
+      "main": [
+        [
+          {
+            "node": "SplitInBatches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Category Page Rewriter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Meta Title Rewrtier",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Meta Description Extractor": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Meta Title Extractor": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Markdown Formatting": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Meta Extractor",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Markdown",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Google Sheets3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Markdown": {
+      "main": [
+        [
+          {
+            "node": "Category Page  Summariser",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Meta Description Rewriter",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Meta Title Rewrtier": {
+      "main": [
+        [
+          {
+            "node": "Meta Title Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "entityExtractedText": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "productSummariser": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "dataResearchText": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Meta Description Rewriter": {
+      "main": [
+        [
+          {
+            "node": "Meta Description Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Category Entitiy Extractor Agent": {
+      "main": [
+        [
+          {
+            "node": "entityExtractedText",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Category Page Rewriter": {
+      "main": [
+        [
+          {
+            "node": "CategoryPageDraft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Category Page  Summariser": {
+      "main": [
+        [
+          {
+            "node": "productSummariser",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Category Page Final Output",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CategoryPageFeedback": {
+      "main": [
+        [
+          {
+            "node": "Category Page Final Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model5": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Category page Feedback",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model6": {
+      "ai_languageModel": [
+        []
+      ]
+    },
+    "Category page Feedback": {
+      "main": [
+        [
+          {
+            "node": "CategoryPageFeedback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CategoryPageDraft": {
+      "main": [
+        [
+          {
+            "node": "Category page Feedback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Category page Final output": {
+      "main": [
+        [
+          {
+            "node": "Markdown Formatting",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Meta Title Rewrtier",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Meta Description Rewriter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Category Page Final Output": {
+      "main": [
+        [
+          {
+            "node": "Category page Final output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ecf8f5a367a053b31a916eab7d52753441c1335d50da9cd94c91e52b4e43163f"
+  }
+}
