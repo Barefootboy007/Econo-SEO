@@ -14,32 +14,11 @@ import { Settings, Zap, Shield, Globe, Save, RefreshCw } from 'lucide-react'
 import useAuth from "@/hooks/useAuth"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import useCustomToast from "@/hooks/useCustomToast"
+import { ScraperService, type ScraperSettings as ScraperSettingsType } from "@/client/ScraperService"
 
 export const Route = createFileRoute("/_layout/scraper-settings")({
   component: ScraperSettings,
 })
-
-interface ScraperSettingsType {
-  browser_type: string
-  headless: boolean
-  viewport_width: number
-  viewport_height: number
-  js_enabled: boolean
-  wait_for_timeout: number
-  bypass_cloudflare: boolean
-  remove_overlay: boolean
-  stealth_mode: boolean
-  page_timeout: number
-  screenshot: boolean
-  extract_media: boolean
-  cache_enabled: boolean
-  extract_markdown: boolean
-  extract_links: boolean
-  extract_images: boolean
-  extract_structured_data: boolean
-  delay_between_requests: number
-  max_retries: number
-}
 
 function ScraperSettings() {
   const { user } = useAuth()
@@ -51,42 +30,19 @@ function ScraperSettings() {
   // Fetch current settings
   const { data: currentSettings, isLoading } = useQuery({
     queryKey: ["scraperSettings"],
-    queryFn: async () => {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/scraper/settings`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-        },
-      })
-      if (!response.ok) throw new Error("Failed to fetch settings")
-      return response.json()
-    },
+    queryFn: () => ScraperService.getSettings(),
     enabled: !!user,
   })
 
   // Fetch presets
   const { data: presets } = useQuery({
     queryKey: ["scraperPresets"],
-    queryFn: async () => {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/scraper/settings/presets`)
-      if (!response.ok) throw new Error("Failed to fetch presets")
-      return response.json()
-    },
+    queryFn: () => ScraperService.getPresets(),
   })
 
   // Update settings mutation
   const updateSettings = useMutation({
-    mutationFn: async (newSettings: ScraperSettingsType) => {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/scraper/settings`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("access_token")}`,
-        },
-        body: JSON.stringify(newSettings),
-      })
-      if (!response.ok) throw new Error("Failed to update settings")
-      return response.json()
-    },
+    mutationFn: (newSettings: ScraperSettingsType) => ScraperService.updateSettings(newSettings),
     onSuccess: () => {
       showToast("Success", "Settings saved successfully", "success")
       queryClient.invalidateQueries({ queryKey: ["scraperSettings"] })
