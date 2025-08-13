@@ -25,6 +25,7 @@ from app.services.scraper_settings import (
 )
 from app.core.auth import get_current_user
 from app.core.rate_limit import check_rate_limit
+from app.tasks.scraping_tasks import scrape_single_url, scrape_website, scrape_bulk_urls
 
 logger = logging.getLogger(__name__)
 
@@ -238,6 +239,105 @@ async def scrape_with_llm_extraction(
         raise HTTPException(
             status_code=500,
             detail=f"LLM extraction failed: {str(e)}"
+        )
+
+
+@router.post("/scrape/async")
+async def scrape_async(
+    request: ScrapeRequest,
+    settings: ScraperSettings = Depends(get_user_scraper_settings),
+    user_id: str = Depends(get_current_user)
+) -> Dict[str, Any]:
+    """
+    Queue a URL for async scraping using Celery
+    Returns immediately with a job ID
+    """
+    try:
+        # Queue the task
+        task = scrape_single_url.apply_async(
+            args=[str(request.url), user_id],
+            kwargs={"settings": settings.to_dict()}
+        )
+        
+        return {
+            "success": True,
+            "job_id": task.id,
+            "status": "queued",
+            "message": f"Scraping job queued for {request.url}"
+        }
+        
+    except Exception as e:
+        logger.error(f"Error queuing scrape job: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to queue scraping job: {str(e)}"
+        )
+
+
+@router.post("/scrape/website/async")
+async def scrape_website_async(
+    request: CrawlWebsiteRequest,
+    settings: ScraperSettings = Depends(get_user_scraper_settings),
+    user_id: str = Depends(get_current_user)
+) -> Dict[str, Any]:
+    """
+    Queue a website for async crawling using Celery
+    Returns immediately with a job ID
+    """
+    try:
+        # Queue the task
+        task = scrape_website.apply_async(
+            args=[str(request.base_url), user_id],
+            kwargs={
+                "settings": settings.to_dict(),
+                "max_pages": request.max_pages
+            }
+        )
+        
+        return {
+            "success": True,
+            "job_id": task.id,
+            "status": "queued",
+            "message": f"Website crawl queued for {request.base_url}"
+        }
+        
+    except Exception as e:
+        logger.error(f"Error queuing website crawl: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to queue website crawl: {str(e)}"
+        )
+
+
+@router.get("/job/{job_id}/status")
+async def get_job_status(
+    job_id: str,
+    user_id: str = Depends(get_current_user)
+) -> Dict[str, Any]:
+    """
+    Get the status of a scraping job
+    """
+    try:
+        from app.core.celery_app import celery_app
+        
+        # Get task result
+        result = celery_app.AsyncResult(job_id)
+        
+        return {
+            "job_id": job_id,
+            "status": result.status,
+            "state": result.state,
+            "info": result.info if result.info else {},
+            "ready": result.ready(),
+            "successful": result.successful() if result.ready() else None,
+            "result": result.result if result.successful() else None
+        }
+        
+    except Exception as e:
+        logger.error(f"Error getting job status: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Failed to get job status: {str(e)}"
         )
 
 

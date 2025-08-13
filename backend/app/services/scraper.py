@@ -279,7 +279,7 @@ class SEOScraper:
             ]
         }
     
-    async def scrape_url(self, url: str, custom_settings: Optional[Dict] = None) -> Dict[str, Any]:
+    async def scrape_url(self, url: str, custom_settings: Optional[Dict] = None, progress_callback=None) -> Dict[str, Any]:
         """
         Scrape a single URL and extract SEO-relevant data using pure Crawl4AI
         
@@ -638,3 +638,88 @@ class SEOScraper:
         results = await asyncio.gather(*tasks)
         
         return results
+    
+    async def scrape_website(self, base_url: str, progress_callback=None) -> Dict[str, Any]:
+        """
+        Scrape an entire website with progress tracking
+        
+        Args:
+            base_url: Base URL of the website to scrape
+            progress_callback: Optional async callback for progress updates
+            
+        Returns:
+            Dictionary with scraping results
+        """
+        from urllib.parse import urlparse, urljoin
+        
+        parsed = urlparse(base_url)
+        domain = parsed.netloc
+        
+        # Track visited URLs to avoid duplicates
+        visited = set()
+        to_visit = {base_url}
+        results = []
+        errors = []
+        
+        max_pages = self.settings.max_pages
+        pages_scraped = 0
+        
+        # Initial progress update
+        if progress_callback:
+            await progress_callback(0, max_pages, f"Starting to scrape {domain}")
+        
+        while to_visit and pages_scraped < max_pages:
+            url = to_visit.pop()
+            
+            if url in visited:
+                continue
+                
+            visited.add(url)
+            
+            try:
+                # Update progress
+                if progress_callback:
+                    await progress_callback(
+                        pages_scraped,
+                        max_pages,
+                        f"Scraping page {pages_scraped + 1}/{max_pages}",
+                        url
+                    )
+                
+                # Scrape the page
+                result = await self.scrape_url(url)
+                results.append(result)
+                pages_scraped += 1
+                
+                # Extract links if we should follow them
+                if self.settings.follow_links and result.get("links"):
+                    for link in result["links"]:
+                        # Only follow internal links
+                        if domain in link and link not in visited:
+                            to_visit.add(link)
+                
+                # Add delay between requests
+                if self.settings.request_delay > 0:
+                    await asyncio.sleep(self.settings.request_delay)
+                    
+            except Exception as e:
+                logger.error(f"Error scraping {url}: {e}")
+                errors.append({"url": url, "error": str(e)})
+        
+        # Final progress update
+        if progress_callback:
+            await progress_callback(
+                pages_scraped,
+                pages_scraped,
+                f"Completed scraping {domain}",
+                None
+            )
+        
+        return {
+            "success": len(errors) == 0,
+            "domain": domain,
+            "pages_scraped": pages_scraped,
+            "total_pages": len(visited),
+            "pages": results,
+            "errors": errors
+        }

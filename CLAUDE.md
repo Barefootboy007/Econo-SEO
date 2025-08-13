@@ -146,3 +146,20 @@ cd frontend && npx shadcn@latest add [component-name] --yes
 - **Caching**: 24-hour TTL to avoid duplicate scraping
 - **Data-Driven**: GSC metrics inform optimization prompts
 - **Version Tracking**: Compare performance across content versions
+
+## IMPORTANT DEVELOPMENT RULES
+
+### Dependency Installation Rule
+**ALWAYS ASK BEFORE INSTALLING**: When installing Python or npm dependencies, ALWAYS provide the commands to the user and ask them to run the commands manually. Do NOT attempt to run pip install or npm install commands directly. The user needs to:
+- Ensure their virtual environment is properly activated
+- May have specific security or proxy settings
+- Prefers to monitor what's being installed
+
+Example:
+```bash
+# Backend (user should run in activated venv)
+pip install package-name
+
+# Frontend  
+npm install package-name
+```

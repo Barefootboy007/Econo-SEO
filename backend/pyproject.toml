@@ -21,6 +21,16 @@ dependencies = [
     "pydantic-settings<3.0.0,>=2.2.1",
     "sentry-sdk[fastapi]<2.0.0,>=1.40.6",
     "pyjwt<3.0.0,>=2.8.0",
+    # WebSocket support
+    "python-socketio[asyncio]<6.0.0,>=5.11.0",
+    "aioredis<3.0.0,>=2.0.1",
+    # Celery and Redis for background tasks
+    "celery[redis]<6.0.0,>=5.4.0",
+    "redis<6.0.0,>=5.0.0",
+    "flower<3.0.0,>=2.0.0",
+    # Additional dependencies for scraping
+    "crawl4ai>=0.6.2",
+    "supabase<3.0.0,>=2.10.0",
 ]
 
 [tool.uv]
