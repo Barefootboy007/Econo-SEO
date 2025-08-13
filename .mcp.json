@@ -1,24 +1,36 @@
-{
+ {
   "mcpServers": {
-  "projectInfo": {
-    "name": "SEO Optimizer Platform",
-    "description": "Web scraping and SEO optimization SaaS platform",
-    "techStack": {
-      "backend": "FastAPI + Python 3.11",
-      "frontend": "React + TypeScript + shadcn/ui",
-      "database": "Supabase (PostgreSQL + pgvector)",
-      "scraping": "Crawl4AI",
-      "queue": "Celery + Redis",
-      "realtime": "WebSockets"
+    "playwright": {
+      "command": "cmd",
+      "args": ["/c", "npx", "@playwright/mcp@latest"],
+      "env": {},
+      "description": "Browser automation for testing and scraping"
     },
-    "phases": {
-      "current": "Phase 0 - Project Setup",
-      "mvpTarget": "Phase 4 - Basic Frontend"
+    "context7": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@upstash/context7-mcp"],
+      "env": {},
+      "description": "Library documentation and code examples from Upstash Context7"
+    },
+    "puppeteer": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@modelcontextprotocol/server-puppeteer"],
+      "env": {},
+      "description": "Alternative browser automation server"
+    },
+    "sequential-thinking": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@modelcontextprotocol/server-sequential-thinking"],
+      "env": {},
+      "description": "Complex reasoning and planning assistance"
+    },
+    "brave-search": {
+      "command": "cmd",
+      "args": ["/c", "npx", "-y", "@modelcontextprotocol/server-brave-search"],
+      "env": {
+        "BRAVE_API_KEY": "${BRAVE_API_KEY}"
+      },
+      "description": "Web search capabilities"
     }
-  },
-  "environmentVariables": {
-    "GITHUB_TOKEN": "your-github-personal-access-token",
-    "SUPABASE_DATABASE_URL": "postgresql://postgres:[YOUR-PASSWORD]@db.[YOUR-PROJECT-REF].supabase.co:5432/postgres",
-    "note": "Replace these with your actual credentials in your environment"
   }
 }

@@ -1,0 +1,10 @@
+{
+  "enabledMcpjsonServers": [
+    "playwright",
+    "context7",
+    "puppeteer",
+    "sequential-thinking",
+    "brave-search"
+  ],
+  "enableAllProjectMcpServers": true
+}
